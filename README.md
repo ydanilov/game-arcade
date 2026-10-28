@@ -22,6 +22,7 @@ One static page: `index.html` (inline CSS and JS, Google Fonts) plus art in `ass
    - `title`, `logo` (HTML for the typeset title) and `logoClass` (`logo-ff`, `logo-jc`, `logo-pf` or a new style)
    - `genre`, `pitch`, `platforms` (`desktop`, `mobile`, `gamepad`)
    - `play` (game URL), `code` (GitHub URL), `cover`, `coverAlt`, `shots` (`[[src, caption]]`)
+   - `trailers` (optional): `[[mp4, posterWebp, caption]]`, files in `assets/video/` (short, muted-friendly H.264 + AAC, faststart). The first one plays in the hero after 1.5 s, in the tile on hover and on the detail page; all of them lead the screenshot viewer and play with sound in the lightbox. Videos load lazily, only one plays at a time, and stills are kept under reduced motion or Data Saver.
    - `lede`, `about` (paragraphs), `features`, `controls` (`[action, keyboard, gamepad, touch]`)
    - `landscape: true` if phones should be asked to rotate in the in-page player
 3. The hero, the Games row, the Moments row (built from `shots`), the detail page, lightbox and player all pick it up automatically.
@@ -35,6 +36,6 @@ cd tools && npm i playwright && npx playwright install chromium && cd ..
 node tools/test.mjs
 ```
 
-Checks 390×844, 768×1024, 1440×900 and 1920×1080: no console errors, no horizontal overflow, no chips, hero rotation (indicator, auto, arrow keys), arrow-key navigation across rows, detail page via tile and deep link, screenshot viewer, lightbox, player open and Esc close, focus trap. Screenshots go to `tools/shots/` (gitignored).
+Checks 390×844, 768×1024, 1440×900 and 1920×1080: no console errors, no horizontal overflow, no chips, trailers (hero crossfade, mute toggle, pause off-screen, tile hover preview, detail hero, lightbox with sound, stills under reduced motion), hero rotation (indicator, auto, arrow keys), arrow-key navigation across rows, detail page via tile and deep link, screenshot viewer, lightbox, player open and Esc close, focus trap. Screenshots go to `tools/shots/` (gitignored).
 
 Made by Diego Danylov · built with Claude · art made in Google Flow

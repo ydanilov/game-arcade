@@ -103,6 +103,27 @@ button{font:inherit;color:inherit}
 .progress [aria-current="true"] span::after{content:"";position:absolute;inset:0;background:#fff;transform-origin:left;transform:scaleX(var(--p,1))}
 .progress button:hover span{background:rgba(255,255,255,.45)}
 
+/* ---------- trailers ---------- */
+.vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:var(--fp,50% 50%);opacity:0;transition:opacity 1s ease;background:transparent;pointer-events:none}
+.vid.playing{opacity:1}
+.tile .vid{transition-duration:.45s}
+.mute{position:absolute;z-index:6;right:var(--gut-r);bottom:18px;width:44px;height:44px;border-radius:50%;border:1.5px solid rgba(255,255,255,.6);background:rgba(11,11,15,.35);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:#fff;display:none;place-items:center;cursor:pointer;transition:background .15s,border-color .15s,transform .08s}
+.mute svg{width:20px;height:20px}
+.mute:hover{background:rgba(255,255,255,.16);border-color:#fff}
+.mute:active{transform:scale(.94)}
+.mute:focus-visible{outline:none;box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ac)}
+.has-video > .mute{display:grid}
+@media (max-width:699px){.hero .mute{bottom:14px}}
+@media (min-width:700px){.progress{right:calc(var(--gut-r) + 56px)}}
+.vbadge{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.vbadge span{width:64px;height:64px;border-radius:50%;background:rgba(11,11,15,.55);border:1.5px solid rgba(255,255,255,.85);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:grid;place-items:center;color:#fff;transition:background .15s,color .15s,transform .2s var(--ease)}
+.vbadge svg{width:26px;height:26px;margin-left:3px}
+.viewer-main:hover .vbadge span,.viewer-main:focus-visible .vbadge span{background:#fff;color:#000;transform:scale(1.06)}
+.thumb .vbadge span{width:28px;height:28px;border-width:1px}
+.thumb .vbadge svg{width:12px;height:12px;margin-left:2px}
+#lbVid{max-width:100%;max-height:100%;width:auto;height:auto;border-radius:6px;background:#000}
+#lbVid[hidden],#lbImg[hidden]{display:none}
+
 /* ---------- game titles: each game keeps its own face ---------- */
 .logo{margin:0;font-weight:400;line-height:.95;letter-spacing:0;max-width:100%}
 .logo-ff{font-family:"Lilita One",var(--ui);color:#ffc23a;-webkit-text-stroke:.09em #3a1206;paint-order:stroke fill;text-shadow:0 .06em 0 #3a1206}
@@ -237,10 +258,12 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 .d-hero{position:relative;height:min(120vw,64svh);min-height:340px}
 @media (min-width:700px){.d-hero{height:min(48vw,72svh);min-height:420px}}
 .d-hero .ph{position:absolute;inset:0}
+.d-hero .mute{bottom:4px}
+@media (min-width:700px){.d-hero .mute{bottom:32px}}
 .d-hero .ph img{object-position:var(--fp,50% 50%)}
-.d-hero .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,var(--bg) 0%,rgba(11,11,15,.7) 22%,rgba(11,11,15,0) 55%),linear-gradient(180deg,rgba(11,11,15,.5),rgba(11,11,15,0) 22%)}
-@media (min-width:700px){.d-hero .ph::after{background:linear-gradient(0deg,var(--bg) 0%,rgba(11,11,15,.5) 24%,rgba(11,11,15,0) 50%),linear-gradient(90deg,rgba(11,11,15,.8),rgba(11,11,15,0) 50%),linear-gradient(180deg,rgba(11,11,15,.5),rgba(11,11,15,0) 22%)}}
-.d-head{position:absolute;left:var(--gut);right:var(--gut-r);bottom:0;display:flex;flex-direction:column;gap:12px}
+.d-hero::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(0deg,var(--bg) 0%,rgba(11,11,15,.7) 22%,rgba(11,11,15,0) 55%),linear-gradient(180deg,rgba(11,11,15,.5),rgba(11,11,15,0) 22%)}
+@media (min-width:700px){.d-hero::after{background:linear-gradient(0deg,var(--bg) 0%,rgba(11,11,15,.5) 24%,rgba(11,11,15,0) 50%),linear-gradient(90deg,rgba(11,11,15,.8),rgba(11,11,15,0) 50%),linear-gradient(180deg,rgba(11,11,15,.5),rgba(11,11,15,0) 22%)}}
+.d-head{position:absolute;z-index:2;left:var(--gut);right:calc(var(--gut-r) + 56px);bottom:0;display:flex;flex-direction:column;gap:12px}
 @media (min-width:700px){.d-head{bottom:28px;max-width:720px}}
 .d-head .logo{font-size:clamp(44px,12vw,60px)}
 @media (min-width:700px){.d-head .logo{font-size:clamp(56px,6vw,96px)}}
@@ -374,7 +397,7 @@ kbd{font:600 12px/1 var(--ui);display:inline-block;padding:4px 6px;border-radius
     <span class="lb-count" id="lbCount" aria-live="polite"></span>
     <button class="icon-btn" type="button" data-close aria-label="Close screenshot viewer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
-  <div class="lb-stage" id="lbStage"><img id="lbImg" alt="" width="1024" height="572"></div>
+  <div class="lb-stage" id="lbStage"><img id="lbImg" alt="" width="1024" height="572"><video id="lbVid" controls playsinline preload="none" width="1280" height="720" hidden></video></div>
   <div class="lb-bottom">
     <button class="icon-btn" type="button" id="lbPrev" aria-label="Previous screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
     <button class="icon-btn" type="button" id="lbNext" aria-label="Next screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
@@ -418,6 +441,10 @@ const GAMES = [
     platforms: ["desktop", "mobile", "gamepad"],
     play: "https://game-frankfurt-falls.vercel.app",
     code: "https://github.com/ydanilov/game-frankfurt-falls",
+    trailers: [
+      ["assets/video/ff_intro.mp4", "assets/video/ff_intro.webp", "Trailer: the Chef crashes the picnic"],
+      ["assets/video/ff_boss.mp4", "assets/video/ff_boss.webp", "Trailer: showdown on the roof"]
+    ],
     cover: "assets/ff_title.webp",
     coverAlt: "Frank the hotdog climbs a skyscraper of burgers and waffles while Chef Le Grill shakes his fist from the roof",
     shots: [
@@ -463,6 +490,9 @@ const GAMES = [
     landscape: true,
     play: "https://game-jutsu-clash.vercel.app",
     code: "https://github.com/ydanilov/game-jutsu-clash",
+    trailers: [
+      ["assets/video/jc_intro.mp4", "assets/video/jc_intro.webp", "Trailer: Kenji holds the shrine"]
+    ],
     cover: "assets/jc_title.webp",
     coverAlt: "A floating island with fire, water, earth and air towers holding off a line of stick-man ninjas pouring from a purple portal",
     shots: [
@@ -506,6 +536,10 @@ const GAMES = [
     platforms: ["desktop", "mobile", "gamepad"],
     play: "https://game-paper-flight.vercel.app",
     code: "https://github.com/ydanilov/paper-flight",
+    trailers: [
+      ["assets/video/pf_intro.mp4", "assets/video/pf_intro.webp", "Trailer: Sam folds the note"],
+      ["assets/video/pf_boss.mp4", "assets/video/pf_boss.webp", "Trailer: Principal Grimsby and the bell"]
+    ],
     cover: "assets/pf_title.webp",
     coverAlt: "Sam leans out of a school window and launches a paper plane over a hand-drawn town",
     shots: [
@@ -551,6 +585,8 @@ const ICON = {
   code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>',
   l: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
   r: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
+  muted: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M16 9l5 6M21 9l-5 6"/></svg>',
+  sound: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
   close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>'
 };
 const PLAT_NAME = { desktop: "Desktop", mobile: "Phone and tablet", gamepad: "Gamepad" };
@@ -571,6 +607,52 @@ function wireImages(root) {
   });
 }
 const fp = g => `--fp:${g.focus || "50% 50%"}`;
+const openStack = [];
+
+/* ---------- media: one video at a time, lazy sources, shared mute ---------- */
+const Media = (() => {
+  const syncs = [];
+  const M = {
+    muted: true,
+    preview: false,
+    canAuto: () => !reduceMotion && !(navigator.connection && navigator.connection.saveData) && !document.hidden,
+    vid(src, cls = "vid") { return `<video class="${cls}" data-src="${esc(src)}" muted playsinline preload="none" disablepictureinpicture aria-hidden="true" tabindex="-1"></video>`; },
+    load(v) { if (v.dataset.src && v.getAttribute("src") !== v.dataset.src) { v.preload = "auto"; v.src = v.dataset.src; } },
+    // A video may only play inside the top-most layer: the open dialog, or the page when none is open.
+    allowed(v) { const top = openStack[openStack.length - 1]; return top ? top.contains(v) : !v.closest("dialog"); },
+    play(v) {
+      if (!v || v.dataset.failed || !v.isConnected || !M.allowed(v)) return;
+      document.querySelectorAll("video").forEach(o => { if (o !== v && !o.paused) o.pause(); });
+      M.load(v);
+      v.muted = v.dataset.sound ? false : M.muted;
+      const pr = v.play();
+      if (pr && pr.then) pr.then(() => { if (!M.allowed(v) || !v.isConnected) v.pause(); });
+      if (pr && pr.catch) pr.catch(() => {
+        if (!v.muted && !v.dataset.sound) { M.setMuted(true); v.play().catch(() => {}); }
+      });
+    },
+    stop(v, release) {
+      if (!v) return;
+      v.pause(); v.classList.remove("playing");
+      if (release && v.getAttribute("src")) { v.removeAttribute("src"); v.load(); }
+    },
+    wire(v, owner) {
+      v.addEventListener("playing", () => { v.classList.add("playing"); owner && owner.classList.add("has-video"); });
+      v.addEventListener("error", () => { if (v.getAttribute("src")) { v.dataset.failed = 1; v.classList.remove("playing"); owner && owner.classList.remove("has-video"); } });
+    },
+    muteBtn() { return `<button class="mute" type="button" data-mute aria-pressed="false" aria-label="Turn sound on">${ICON.muted}</button>`; },
+    setMuted(m) {
+      M.muted = m;
+      document.querySelectorAll("video.vid").forEach(v => { if (!v.dataset.sound) v.muted = m; });
+      document.querySelectorAll("[data-mute]").forEach(b => { b.innerHTML = m ? ICON.muted : ICON.sound; b.setAttribute("aria-pressed", m ? "false" : "true"); b.setAttribute("aria-label", m ? "Turn sound on" : "Turn sound off"); });
+    },
+    onSync(fn) { syncs.push(fn); },
+    sync() { syncs.forEach(f => f()); }
+  };
+  document.addEventListener("click", e => { if (e.target.closest("[data-mute]")) M.setMuted(!M.muted); });
+  document.addEventListener("visibilitychange", () => M.sync());
+  return M;
+})();
 
 /* ---------- hero ---------- */
 const Hero = (() => {
@@ -580,7 +662,7 @@ const Hero = (() => {
   if (!GAMES.length) { root.hidden = true; return {}; }
   stage.innerHTML = GAMES.map((g, n) => `
     <article class="slide ${g.theme}" id="slide-${g.id}" role="group" aria-roledescription="slide" aria-label="${n + 1} of ${GAMES.length}: ${esc(g.title)}" style="${fp(g)}">
-      <div class="bgimg">${pic(g.cover, g.coverAlt, { eager: n === 0 })}</div>
+      <div class="bgimg">${pic(g.cover, g.coverAlt, { eager: n === 0 })}${g.trailers && g.trailers.length ? Media.vid(g.trailers[0][0]) : ""}</div>
       <div class="copy">
         <h2 class="logo ${g.logoClass}">${g.logo}</h2>
         <p class="pitch">${esc(g.pitch)}</p>
@@ -591,8 +673,36 @@ const Hero = (() => {
       </div>
     </article>`).join("");
   dotsEl.innerHTML = GAMES.map(g => `<button type="button" aria-label="Show ${esc(g.title)}"><span></span></button>`).join("");
+  root.insertAdjacentHTML("beforeend", Media.muteBtn());
   wireImages(stage);
   const slides = [...stage.children], dots = [...dotsEl.children];
+  const vids = slides.map(s => s.querySelector("video"));
+  let armed = false, armT = 0, loops = 0, lead = 0, inView = true;
+  vids.forEach((v, n) => {
+    if (!v) return;
+    v.addEventListener("playing", () => { if (n === i) { root.classList.add("has-video"); if (!v.classList.contains("playing")) lead = elapsed; v.classList.add("playing"); } });
+    v.addEventListener("ended", () => {
+      if (n !== i) return;
+      loops++;
+      if (loops >= 2 && !paused()) go(i + 1);
+      else { if (loops >= 2) loops = 1; v.currentTime = 0; sync(); }
+    });
+    v.addEventListener("error", () => { if (v.getAttribute("src")) { v.dataset.failed = 1; v.classList.remove("playing"); if (n === i) root.classList.remove("has-video"); } });
+  });
+  const vidOn = () => { const v = vids[i]; return !!(v && v.classList.contains("playing") && !v.dataset.failed); };
+  function sync() {
+    const v = vids[i]; if (!v) return;
+    if (armed && inView && !Media.preview && !openStack.length && Media.canAuto()) Media.play(v);
+    else if (!v.paused) v.pause();
+  }
+  function arm() {
+    clearTimeout(armT); armed = false; loops = 0; lead = 0;
+    vids.forEach((v, n) => { if (v && n !== i) { v.pause(); v.classList.remove("playing"); if (v.getAttribute("src")) v.currentTime = 0; } });
+    root.classList.remove("has-video");
+    if (vids[i] && Media.canAuto()) armT = setTimeout(() => { armed = true; sync(); }, 1500);
+  }
+  Media.onSync(sync);
+  if ("IntersectionObserver" in window) new IntersectionObserver(es => { inView = es[0].intersectionRatio >= .6; sync(); }, { threshold: [0, .3, .6, .9] }).observe(root);
   function render() {
     slides.forEach((s, n) => { const on = n === i; s.classList.toggle("on", on); s.toggleAttribute("aria-hidden", !on); s.inert = !on; });
     dots.forEach((d, n) => d.setAttribute("aria-current", n === i ? "true" : "false"));
@@ -600,15 +710,18 @@ const Hero = (() => {
   }
   function go(n, user) {
     const hadFocus = root.contains(document.activeElement) && document.activeElement.closest(".slide");
-    i = (n + GAMES.length) % GAMES.length; elapsed = 0; render();
+    i = (n + GAMES.length) % GAMES.length; elapsed = 0; render(); arm();
     if (user) stage.setAttribute("aria-live", "polite");
     if (hadFocus) slides[i].querySelector(".btn").focus({ preventScroll: true });
   }
-  const paused = () => reduceMotion || hover || document.hidden || openStack.length > 0;
+  const paused = () => reduceMotion || hover || !inView || document.hidden || openStack.length > 0;
   function tick(now) {
-    if (!paused()) { elapsed += now - t0; if (elapsed >= DUR) go(i + 1); }
+    const on = vidOn();
+    if (!paused() && !on) { elapsed += now - t0; if (elapsed >= DUR) go(i + 1); }
     t0 = now;
-    dots[i].style.setProperty("--p", reduceMotion ? 1 : Math.min(1, elapsed / DUR).toFixed(3));
+    let p = elapsed / DUR;
+    if (on) { const v = vids[i], D = v.duration || 8; p = (lead + (loops * D + v.currentTime) * 1000) / (lead + 2 * D * 1000); }
+    dots[i].style.setProperty("--p", reduceMotion ? 1 : Math.min(1, p).toFixed(3));
     requestAnimationFrame(tick);
   }
   dots.forEach((d, n) => d.addEventListener("click", () => go(n, true)));
@@ -629,8 +742,8 @@ const Hero = (() => {
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(i + (dx < 0 ? 1 : -1), true);
   });
   root.addEventListener("pointercancel", () => sx = null);
-  render(); requestAnimationFrame(t => { t0 = t; tick(t); });
-  return { go, get index() { return i; }, prev() { go(i - 1, true); }, next() { go(i + 1, true); } };
+  render(); arm(); requestAnimationFrame(t => { t0 = t; tick(t); });
+  return { go, sync, get index() { return i; }, prev() { go(i - 1, true); }, next() { go(i + 1, true); } };
 })();
 
 /* ---------- rows ---------- */
@@ -641,7 +754,7 @@ const MOMENTS = GAMES.flatMap(g => (g.shots || []).map(([src, cap]) => ({ g, src
   else gt.innerHTML = GAMES.map(g => `
     <li class="tile ${g.theme}" style="${fp(g)}">
       <a class="tile-link" href="#${g.id}" data-open="${g.id}" data-nav data-row="1" aria-label="${esc(g.title)}, ${esc(g.genre)}. More info">
-        ${pic(g.cover, "")}
+        ${pic(g.cover, "")}${g.trailers && g.trailers.length ? Media.vid(g.trailers[0][0]) : ""}
         <p class="logo ${g.logoClass}" aria-hidden="true">${g.logo}</p>
       </a>
       <div class="tile-more">
@@ -649,6 +762,19 @@ const MOMENTS = GAMES.flatMap(g => (g.shots || []).map(([src, cap]) => ({ g, src
         <a class="tile-play" href="${esc(g.play)}" target="_blank" rel="noopener" aria-label="Play ${esc(g.title)}">${ICON.play}</a>
       </div>
     </li>`).join("");
+  // Netflix-style hover preview, desktop pointers only
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches) gt.querySelectorAll(".tile").forEach(tile => {
+    const v = tile.querySelector("video"); if (!v) return;
+    let t = 0;
+    v.loop = true; Media.wire(v);
+    const start = () => { clearTimeout(t); t = setTimeout(() => { if (!Media.canAuto() || openStack.length) return; Media.preview = true; Media.play(v); }, 600); };
+    const end = () => { clearTimeout(t); if (!v.paused || v.classList.contains("playing")) { Media.stop(v); v.currentTime = 0; } if (Media.preview) { Media.preview = false; Media.sync(); } };
+    tile.addEventListener("mouseenter", start);
+    tile.addEventListener("mouseleave", () => { if (!tile.contains(document.activeElement)) end(); });
+    tile.addEventListener("focusin", start);
+    tile.addEventListener("focusout", e => { if (!tile.contains(e.relatedTarget) && !tile.matches(":hover")) end(); });
+    tile.addEventListener("click", end);
+  });
   if (!MOMENTS.length) mt.closest(".row").hidden = true;
   else mt.innerHTML = MOMENTS.map((m, n) => `
     <li class="${m.g.theme}"><button class="moment" type="button" data-moment="${n}" data-nav data-row="2" aria-label="${esc(m.g.title)}: ${esc(m.cap)}. Enlarge">${pic(m.src, "")}</button>
@@ -726,7 +852,6 @@ document.addEventListener("keydown", e => {
 })();
 
 /* ---------- modal plumbing: focus trap + scroll lock ---------- */
-const openStack = [];
 function trap(dlg, e) {
   if (e.key !== "Tab") return;
   const f = [...dlg.querySelectorAll('a[href],button:not([disabled]),iframe,[tabindex]:not([tabindex="-1"])')].filter(x => x.offsetParent !== null || x.tagName === "IFRAME");
@@ -740,6 +865,7 @@ function openModal(dlg, opener) {
   if (!dlg.open) dlg.showModal();
   if (!openStack.includes(dlg)) openStack.push(dlg);
   document.documentElement.classList.add("lock");
+  Media.sync();
 }
 const closeModal = dlg => { if (dlg.open) dlg.close(); };
 document.querySelectorAll("dialog").forEach(d => {
@@ -749,21 +875,48 @@ document.querySelectorAll("dialog").forEach(d => {
   d.addEventListener("close", () => {
     const k = openStack.indexOf(d); if (k > -1) openStack.splice(k, 1);
     if (!openStack.length) document.documentElement.classList.remove("lock");
+    Media.sync();
     const o = d._opener; if (o && o.isConnected && typeof o.focus === "function") o.focus({ preventScroll: true });
   });
 });
 
 /* ---------- detail page (deep link #id) ---------- */
 const detail = $("#detail");
+// The detail hero plays the game's trailers in turn, muted unless the viewer unmutes.
+const DetailVid = (() => {
+  let v = null, list = [], k = 0;
+  const sync = () => {
+    if (!v) return;
+    if (openStack[openStack.length - 1] === detail && Media.canAuto()) Media.play(v);
+    else if (!v.paused) v.pause();
+  };
+  Media.onSync(sync);
+  return {
+    attach(el, owner, trailers) {
+      v = el; list = trailers; k = 0;
+      if (!v) return;
+      Media.wire(v, owner);
+      v.loop = list.length === 1;
+      v.addEventListener("ended", () => { k = (k + 1) % list.length; v.dataset.src = list[k][0]; Media.load(v); sync(); });
+      setTimeout(sync, 400);
+    },
+    release() { if (v) Media.stop(v, true); v = null; },
+    get el() { return v; }
+  };
+})();
 let current = null;
 function renderDetail(g) {
   detail.className = g.theme;
   detail.setAttribute("style", fp(g));
-  const shots = g.shots || [];
+  const trailers = g.trailers || [];
+  const items = trailers.map(([src, poster, cap]) => [src, cap, { video: true, poster }]).concat((g.shots || []).map(([src, cap]) => [src, cap]));
+  const shots = items;
+  const still = it => it[2] && it[2].video ? it[2].poster : it[0];
+  const badge = `<span class="vbadge" aria-hidden="true"><span>${ICON.play}</span></span>`;
   detail.innerHTML = `
     <div class="d-bar"><span class="d-bar-title" aria-hidden="true">${esc(g.title)}</span><button class="icon-btn" type="button" data-close aria-label="Close ${esc(g.title)}">${ICON.close}</button></div>
     <div class="d-hero">
-      ${pic(g.cover, g.coverAlt, { eager: true })}
+      ${pic(g.cover, g.coverAlt, { eager: true })}${trailers.length ? Media.vid(trailers[0][0]) + Media.muteBtn() : ""}
       <div class="d-head">
         <h2 class="logo ${g.logoClass}" id="dTitle">${g.logo}</h2>
         <p class="d-genre">${esc(g.genre)}</p>
@@ -781,16 +934,16 @@ function renderDetail(g) {
             ${g.about.map(p => `<p>${esc(p)}</p>`).join("")}
           </div>
           ${shots.length ? `
-          <h3 style="margin-top:28px">Screenshots</h3>
+          <h3 style="margin-top:28px">${trailers.length ? "Trailers and screenshots" : "Screenshots"}</h3>
           <div class="viewer">
             <div style="position:relative">
-              <button class="viewer-main" type="button" data-view-open aria-label="Enlarge screenshot">${pic(shots[0][0], shots[0][1])}</button>
+              <button class="viewer-main" type="button" data-view-open aria-label="${shots[0][2] ? "Play trailer" : "Enlarge screenshot"}">${pic(still(shots[0]), shots[0][1])}<span class="vb-slot">${shots[0][2] ? badge : ""}</span></button>
               ${shots.length > 1 ? `<button class="icon-btn viewer-nav l" type="button" data-view="-1" aria-label="Previous screenshot">${ICON.l}</button>
               <button class="icon-btn viewer-nav r" type="button" data-view="1" aria-label="Next screenshot">${ICON.r}</button>` : ""}
             </div>
             <p class="viewer-cap" id="viewCap" aria-live="polite">${esc(shots[0][1])}</p>
             <ul class="thumbs" aria-label="Screenshots">
-              ${shots.map(([src, cap], n) => `<li><button class="thumb" type="button" data-thumb="${n}" aria-label="Show screenshot: ${esc(cap)}" aria-current="${n ? "false" : "true"}">${pic(src, "")}</button></li>`).join("")}
+              ${shots.map((it, n) => `<li><button class="thumb" type="button" data-thumb="${n}" aria-label="${it[2] ? "Show trailer" : "Show screenshot"}: ${esc(it[1])}" aria-current="${n ? "false" : "true"}">${pic(still(it), "")}${it[2] ? badge : ""}</button></li>`).join("")}
             </ul>
           </div>` : ""}
         </div>
@@ -810,6 +963,7 @@ function renderDetail(g) {
     </div>`;
   wireImages(detail);
   const bar = detail.querySelector(".d-bar"), heroEl = detail.querySelector(".d-hero");
+  DetailVid.attach(heroEl.querySelector("video"), heroEl, trailers);
   detail.onscroll = () => bar.classList.toggle("scrolled", detail.scrollTop > heroEl.offsetHeight - 90);
   let v = 0;
   const main = detail.querySelector(".viewer-main");
@@ -818,7 +972,9 @@ function renderDetail(g) {
     v = (n + shots.length) % shots.length;
     const box = main.querySelector(".ph"), img = box.querySelector("img");
     box.classList.remove("loaded", "failed"); delete box.dataset.wired;
-    img.src = shots[v][0]; img.alt = shots[v][1]; wireImages(main);
+    img.src = still(shots[v]); img.alt = shots[v][1]; wireImages(main);
+    main.querySelector(".vb-slot").innerHTML = shots[v][2] ? badge : "";
+    main.setAttribute("aria-label", shots[v][2] ? "Play trailer" : "Enlarge screenshot");
     detail.querySelector("#viewCap").textContent = shots[v][1];
     detail.querySelectorAll("[data-thumb]").forEach((t, k) => t.setAttribute("aria-current", k === v ? "true" : "false"));
     const t = detail.querySelector(`[data-thumb="${v}"]`); t && t.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -847,6 +1003,7 @@ function openDetail(id, opener, push) {
 function closeDetail(fromPop) {
   if (!detail.open) return;
   closeModal(detail);
+  DetailVid.release();
   document.title = "Diego's Games";
   if (!fromPop && location.hash) {
     if (history.state && history.state.d) history.back();
@@ -871,9 +1028,22 @@ syncHash();
 
 /* ---------- lightbox ---------- */
 const Lightbox = (() => {
-  const dlg = $("#lightbox"), img = $("#lbImg"), count = $("#lbCount"), stage = $("#lbStage");
+  const dlg = $("#lightbox"), img = $("#lbImg"), vid = $("#lbVid"), count = $("#lbCount"), stage = $("#lbStage");
+  vid.dataset.sound = 1;
   let list = [], i = 0;
-  const show = () => { const [src, cap] = list[i]; img.src = src; img.alt = cap; count.textContent = `${i + 1} / ${list.length}   ${cap}`; };
+  const show = () => {
+    const [src, cap, meta] = list[i];
+    count.textContent = `${i + 1} / ${list.length}   ${cap}`;
+    if (meta && meta.video) {
+      img.hidden = true; vid.hidden = false;
+      vid.poster = meta.poster; vid.dataset.src = src; vid.setAttribute("aria-label", cap);
+      Media.play(vid);
+    } else {
+      if (vid.getAttribute("src")) Media.stop(vid, true);
+      vid.hidden = true; img.hidden = false;
+      img.src = src; img.alt = cap;
+    }
+  };
   const step = d => { i = (i + d + list.length) % list.length; show(); };
   $("#lbPrev").addEventListener("click", () => step(-1));
   $("#lbNext").addEventListener("click", () => step(1));
@@ -888,9 +1058,9 @@ const Lightbox = (() => {
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) step(dx < 0 ? 1 : -1);
     else if (e.target === stage) dlg.dispatchEvent(new Event("request-close"));
   });
-  dlg.addEventListener("request-close", () => closeModal(dlg));
+  dlg.addEventListener("request-close", () => { Media.stop(vid, true); vid.hidden = true; img.hidden = false; closeModal(dlg); });
   return {
-    open(l, n, opener, theme) { list = l; i = n; dlg.className = theme || ""; show(); openModal(dlg, opener); dlg.querySelector("[data-close]").focus(); },
+    open(l, n, opener, theme) { list = l; i = n; dlg.className = theme || ""; openModal(dlg, opener); show(); dlg.querySelector("[data-close]").focus(); },
     step
   };
 })();
