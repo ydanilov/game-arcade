@@ -1,16 +1,16 @@
 # [game] Arcade
 
-A store-style showcase for Yura Danilov's browser games: Frankfurt Falls, Jutsu Clash and Paper Flight.
+A store-style showcase for Diego Danylov's browser games: Frankfurt Falls, Jutsu Clash and Paper Flight.
 
-Live: https://yura-games.vercel.app
+Live: https://diego-games.vercel.app
 
 One static page: `index.html` (inline CSS and JS, Google Fonts) plus art in `assets/`. No build step; Vercel serves the repo as is.
 
 ## Deep links
 
-- https://yura-games.vercel.app/#frankfurt-falls
-- https://yura-games.vercel.app/#jutsu-clash
-- https://yura-games.vercel.app/#paper-flight
+- https://diego-games.vercel.app/#frankfurt-falls
+- https://diego-games.vercel.app/#jutsu-clash
+- https://diego-games.vercel.app/#paper-flight
 
 ## Add a new game
 
@@ -36,4 +36,4 @@ node tools/test.mjs
 
 Checks 390×844, 768×1024 and 1440×900: no console errors, no horizontal overflow, carousel (button, auto, arrow keys), detail view via card and deep link, lightbox, player open and Esc close, focus trap. Screenshots go to `tools/shots/` (gitignored).
 
-Made by Yura Danilov with Claude. Art made in Google Flow.
+Made by Diego Danylov with Claude. Art made in Google Flow.
