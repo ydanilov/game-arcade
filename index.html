@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>[game] Arcade</title>
+<meta name="description" content="Three handmade 3D browser games by Yura Danilov: Frankfurt Falls, Jutsu Clash and Paper Flight. Play free on desktop, phone or gamepad.">
+<meta name="theme-color" content="#dcd9e6">
+<link rel="canonical" href="https://game-arcade.vercel.app/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="[game] Arcade">
+<meta property="og:title" content="[game] Arcade: three browser games by Yura Danilov">
+<meta property="og:description" content="A rage-climbing hotdog, elemental ninja tower defense and a paper plane racing the 3:30 bell. Free, no install, desktop and mobile.">
+<meta property="og:url" content="https://game-arcade.vercel.app/">
+<meta property="og:image" content="https://game-arcade.vercel.app/assets/pf_title.webp">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="572">
+<meta property="og:image:alt" content="Sam leans out of a school window as a paper plane flies over town">
+<meta property="og:image" content="https://game-arcade.vercel.app/assets/ff_title.webp">
+<meta property="og:image" content="https://game-arcade.vercel.app/assets/jc_title.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="[game] Arcade: three browser games by Yura Danilov">
+<meta name="twitter:description" content="A rage-climbing hotdog, elemental ninja tower defense and a paper plane racing the 3:30 bell.">
+<meta name="twitter:image" content="https://game-arcade.vercel.app/assets/pf_title.webp">
+<meta name="twitter:image:alt" content="Sam leans out of a school window as a paper plane flies over town">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M10 6h36l8 8v44a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2z' fill='%23f4b41a'/%3E%3Cpath d='M16 10h26' stroke='%2323203a' stroke-width='3' stroke-linecap='round'/%3E%3Crect x='16' y='20' width='32' height='26' rx='3' fill='%2323203a'/%3E%3Cpath d='M28 27l10 6-10 6z' fill='%23f29cb8'/%3E%3C/svg%3E">
+<link rel="preload" as="image" href="assets/ff_title.webp" type="image/webp">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Dela+Gothic+One&family=Gochi+Hand&family=Lilita+One&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --shell:#dcd9e6;        /* console plastic */
+  --shell-2:#cfcbdc;      /* recessed plastic */
+  --shell-hi:#ecebf3;
+  --ink:#23203a;          /* text + bezel */
+  --ink-2:#4d4866;
+  --bezel:#26233a;
+  --screen:#100e1a;
+  --led:#ff5a4e;
+  --ff:#f4b41a; --ff-ink:#2b1a04; --ff-2:#d8352a;
+  --jc:#f29cb8; --jc-ink:#2a1430; --jc-2:#7d4ed8;
+  --pf:#fbfaf4; --pf-ink:#1f3170; --pf-2:#e0574f;
+  --r-s:6px; --r-m:12px; --r-l:22px;
+  --gut:max(16px, env(safe-area-inset-left));
+  --gut-r:max(16px, env(safe-area-inset-right));
+  --ui:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sign:"Bungee", "Manrope", system-ui, sans-serif;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+html.lock{overflow:hidden}
+body{margin:0;background:var(--shell);color:var(--ink);font:500 16px/1.55 var(--ui);overflow-x:hidden;
+  background-image:radial-gradient(circle at 1px 1px, rgba(35,32,58,.07) 1px, transparent 1.4px);background-size:6px 6px}
+img{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ink);outline-offset:3px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{width:100%;max-width:1320px;margin:0 auto;padding-left:var(--gut);padding-right:var(--gut-r)}
+@media (min-width:768px){:root{--gut:max(32px, env(safe-area-inset-left));--gut-r:max(32px, env(safe-area-inset-right))}}
+
+/* ---------- top bar ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:max(14px, env(safe-area-inset-top));padding-bottom:14px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;min-height:44px}
+.brand-word{font:400 clamp(20px,4.6vw,26px)/1 var(--sign);letter-spacing:.01em}
+.brand-word b{font-weight:400;color:var(--shell);background:var(--ink);padding:3px 6px 1px;border-radius:5px;margin-right:6px}
+.led{width:10px;height:10px;border-radius:50%;background:var(--led);box-shadow:0 0 0 3px rgba(255,90,78,.18),0 0 10px var(--led)}
+.top-link{font-weight:700;font-size:14px;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;padding:0 14px;border-radius:999px;border:2px solid var(--ink)}
+.top-link:hover{background:var(--ink);color:var(--shell)}
+.top-link:active{transform:translateY(1px)}
+
+/* ---------- console / hero ---------- */
+.console{background:var(--bezel);border-radius:var(--r-l);padding:10px;box-shadow:0 2px 0 #3a3655 inset,0 18px 40px -18px rgba(35,32,58,.55),0 6px 0 #17152a}
+@media (min-width:768px){.console{padding:16px;border-radius:30px}}
+.screen{position:relative;border-radius:14px;overflow:hidden;background:var(--screen);touch-action:pan-y}
+@media (min-width:768px){.screen{border-radius:18px}}
+.slides{display:grid}
+.slide{grid-area:1/1;display:grid;opacity:0;visibility:hidden;transition:opacity .6s var(--ease),visibility 0s linear .6s}
+.slide.on{opacity:1;visibility:visible;transition:opacity .6s var(--ease),visibility 0s}
+.slide .art{position:relative;aspect-ratio:1024/572;overflow:hidden}
+.slide .art img{width:100%;height:100%;object-fit:cover;transform:scale(1.04);transition:transform 7s linear}
+.slide.on .art img{transform:scale(1)}
+.slide .info{padding:18px 16px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;color:#f5f3fb}
+.pitch{margin:0;max-width:46ch;font-size:15px;color:#d8d4e8}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px}
+@media (min-width:900px){
+  .slide .art{aspect-ratio:auto;min-height:clamp(440px,48vw,640px)}
+  .slide .art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(16,14,26,.86) 0%,rgba(16,14,26,.55) 32%,rgba(16,14,26,0) 62%),linear-gradient(0deg,rgba(16,14,26,.6),rgba(16,14,26,0) 40%)}
+  .slide .info{position:absolute;left:0;bottom:0;padding:48px 48px 84px;max-width:620px;gap:16px}
+  .pitch{font-size:18px;color:#efecf8}
+}
+.hero-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 4px 2px}
+@media (min-width:768px){.hero-controls{padding:16px 8px 4px}}
+.dots{display:flex;gap:6px}
+.dot{width:44px;height:44px;border:0;background:none;padding:0;cursor:pointer;display:grid;place-items:center;border-radius:10px}
+.dot span{display:block;width:26px;height:8px;border-radius:4px;background:#4a4566;position:relative;overflow:hidden;transition:width .3s var(--ease)}
+.dot[aria-current="true"] span{width:44px;background:#5a5478}
+.dot[aria-current="true"] span::after{content:"";position:absolute;inset:0;background:var(--dc,#fff);transform-origin:left;transform:scaleX(var(--p,1))}
+.dot:hover span{background:#6c6690}
+.pad{display:flex;gap:8px}
+.pad button{width:44px;height:44px;border-radius:50%;border:0;background:#3a3655;color:#f5f3fb;display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 0 #17152a;transition:transform .08s,box-shadow .08s,background .15s}
+.pad button:hover{background:#4a4566}
+.pad button:active{transform:translateY(3px);box-shadow:0 0 0 #17152a}
+.pad button:focus-visible,.dot:focus-visible{outline-color:#fff}
+.pad svg{width:20px;height:20px}
+
+/* ---------- logotypes ---------- */
+.logo{margin:0;line-height:.92;font-weight:400;width:fit-content;max-width:100%}
+.logo-ff{font-family:"Lilita One",var(--ui);color:var(--ff);font-size:clamp(40px,10vw,84px);-webkit-text-stroke:.12em #4a1408;paint-order:stroke fill;text-shadow:0 .07em 0 #4a1408;letter-spacing:.01em;transform:rotate(-3deg);transform-origin:left bottom}
+.logo-ff span{display:block;color:#fff6dc;font-size:.62em;margin-left:.15em}
+.logo-jc{font-family:"Dela Gothic One",var(--ui);color:#fff;font-size:clamp(38px,9.2vw,78px);letter-spacing:-.01em;text-shadow:.05em .05em 0 var(--jc-2),.1em .1em 0 #2a1430;font-style:normal}
+.logo-jc span{color:var(--jc)}
+.logo-pf{font-family:"Gochi Hand",var(--ui);color:var(--pf-ink);font-size:clamp(40px,10vw,86px);line-height:.9;background:var(--pf);padding:.12em .3em .08em;transform:rotate(-2deg);transform-origin:left bottom;box-shadow:0 8px 18px -8px rgba(0,0,0,.5);
+  background-image:linear-gradient(90deg,transparent .9em,rgba(224,87,79,.55) .9em,rgba(224,87,79,.55) calc(.9em + 2px),transparent 0),repeating-linear-gradient(180deg,transparent 0 .44em,rgba(80,120,200,.28) .44em calc(.44em + 1px));position:relative}
+.logo-pf::before{content:"";position:absolute;top:-.14em;left:42%;width:1.6em;height:.34em;background:rgba(255,236,150,.75);transform:rotate(3deg)}
+
+/* ---------- buttons ---------- */
+.btn{--bc:var(--ink);--bt:#fff;--bs:#0c0a17;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;border:0;background:var(--bc);color:var(--bt);font:800 16px/1 var(--ui);text-decoration:none;cursor:pointer;box-shadow:0 4px 0 var(--bs);transition:transform .08s,box-shadow .08s,filter .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.btn svg{width:18px;height:18px;flex:none}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--bs)}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.45;cursor:not-allowed;filter:grayscale(.6);transform:none;box-shadow:0 4px 0 var(--bs)}
+.btn-play{min-height:56px;padding:0 30px;font-size:18px}
+.btn-ghost{--bc:transparent;--bt:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.btn-ghost:hover{--bc:rgba(35,32,58,.08);filter:none}
+.btn-ghost:active{transform:translateY(1px);box-shadow:inset 0 0 0 2px var(--ink)}
+.g-ff{--c:var(--ff);--ci:var(--ff-ink);--c2:var(--ff-2)}
+.g-jc{--c:var(--jc);--ci:var(--jc-ink);--c2:var(--jc-2)}
+.g-pf{--c:var(--pf);--ci:var(--pf-ink);--c2:var(--pf-2)}
+.btn-game{--bc:var(--c);--bt:var(--ci);--bs:color-mix(in srgb,var(--c) 45%,#000)}
+.g-pf .btn-game{--bc:#ffd84a;--bt:#1f3170;--bs:#a8861a}
+.screen .btn:focus-visible{outline-color:#fff}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;line-height:1;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.12);color:inherit}
+.chip-solid{background:var(--ink);color:#fff}
+
+/* ---------- shelf ---------- */
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:56px 0 20px}
+.sec-head h2{margin:0;font:400 clamp(24px,5vw,34px)/1.1 var(--sign);letter-spacing:.005em}
+.sec-head p{margin:0;color:var(--ink-2);font-size:14px}
+.shelf{display:grid;grid-template-columns:1fr;gap:28px 24px;padding:0;margin:0;list-style:none;position:relative}
+@media (min-width:640px){.shelf{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:1080px){.shelf{grid-template-columns:repeat(3,1fr)}}
+.shelf-plank{height:18px;border-radius:6px;background:linear-gradient(#bdb8cf,#a9a3bf);box-shadow:0 6px 0 #8f89a8,0 16px 24px -12px rgba(35,32,58,.5);margin-top:-6px;position:relative;z-index:0}
+.empty{grid-column:1/-1;border:2px dashed var(--ink-2);border-radius:var(--r-m);padding:32px;text-align:center;color:var(--ink-2)}
+
+.cart{position:relative;z-index:1;text-decoration:none;display:flex;flex-direction:column;height:100%;text-align:left;width:100%;border:0;cursor:pointer;padding:0 14px 16px;color:var(--ci);
+  background:var(--c);border-radius:16px 16px 10px 10px;clip-path:polygon(0 0,calc(100% - 34px) 0,100% 34px,100% 100%,0 100%);
+  box-shadow:inset 0 -6px 0 rgba(0,0,0,.12),inset 0 2px 0 rgba(255,255,255,.45);transition:transform .25s var(--ease)}
+.cart-wrap{filter:drop-shadow(0 10px 12px rgba(35,32,58,.28));transition:filter .25s var(--ease)}
+.cart-grip{height:26px;margin:0 22px 0 0;background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(0,0,0,.14) 9px 11px);mask:linear-gradient(transparent 6px,#000 6px 20px,transparent 20px);-webkit-mask:linear-gradient(transparent 6px,#000 6px 20px,transparent 20px)}
+.g-ff .cart{background-image:linear-gradient(180deg,transparent 0 26px,var(--ff-2) 26px 30px,transparent 30px)}
+.g-pf .cart{background-image:linear-gradient(90deg,transparent 26px,rgba(224,87,79,.5) 26px 28px,transparent 28px),repeating-linear-gradient(180deg,transparent 0 23px,rgba(80,120,200,.22) 23px 24px)}
+.cart-label{position:relative;border-radius:8px;overflow:hidden;box-shadow:0 0 0 3px rgba(0,0,0,.18),0 2px 0 3px rgba(255,255,255,.3)}
+.cart-label .ph{aspect-ratio:1024/572}
+.cart-label .logo{position:absolute;left:12px;bottom:12px;font-size:clamp(30px,8vw,42px)}
+@media (min-width:640px){.cart-label .logo{font-size:clamp(28px,3.3vw,42px)}}
+.cart-label .logo-pf{font-size:clamp(30px,8vw,44px)}
+.cart-body{display:flex;flex-direction:column;gap:12px;padding-top:14px;flex:1}
+.cart-genre{font-weight:800;font-size:17px;line-height:1.25;margin:0}
+.cart-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;flex-wrap:wrap}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12.5px;font-weight:700;padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.1);line-height:1.1}
+.g-pf .tag{background:rgba(31,49,112,.09)}
+.plats{display:flex;gap:4px}
+.plats svg{width:22px;height:22px}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:baseline;gap:4px;font-size:12.5px;font-weight:700;padding:4px 9px 4px 4px;border-radius:7px;background:var(--ci);color:var(--c)}
+.g-pf .badge{background:var(--pf-ink);color:#fff}
+.badge b{font:400 13px/1 var(--sign);background:rgba(255,255,255,.16);padding:3px 5px 2px;border-radius:4px}
+.cart-open{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:14px;min-height:24px}
+.cart-open svg{width:16px;height:16px;transition:transform .2s var(--ease)}
+@media (hover:hover){
+  .cart-wrap:hover{filter:drop-shadow(0 22px 18px rgba(35,32,58,.32))}
+  .cart-wrap:hover .cart{transform:translateY(-10px) rotate(-.6deg)}
+  .cart-wrap:hover .cart-open svg{transform:translateX(4px)}
+}
+.cart:active{transform:translateY(-4px) scale(.99)}
+.cart:focus-visible{outline:none}
+.cart-wrap:has(.cart:focus-visible){filter:drop-shadow(0 0 0 var(--ink)) drop-shadow(0 0 2px var(--ink)) drop-shadow(0 0 0 var(--ink))}
+.cart:focus-visible{box-shadow:inset 0 0 0 4px var(--ink),inset 0 -6px 0 rgba(0,0,0,.12)}
+
+/* skeletons */
+.ph{position:relative;background:#2f2b46;overflow:hidden}
+.ph::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.09) 50%,transparent 70%);background-size:220% 100%;animation:shimmer 1.3s linear infinite}
+.ph.loaded::before{display:none}
+.ph img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+.ph.loaded img{opacity:1}
+.ph.failed::after{content:"Image unavailable";position:absolute;inset:0;display:grid;place-items:center;color:#bdb8d6;font-size:13px}
+@keyframes shimmer{from{background-position:120% 0}to{background-position:-120% 0}}
+
+/* ---------- about strip ---------- */
+.about{margin-top:64px;padding-top:28px;padding-bottom:calc(28px + env(safe-area-inset-bottom));border-top:2px solid var(--ink)}
+.about{border-top:0;position:relative}.about::before{content:"";position:absolute;top:0;left:var(--gut);right:var(--gut-r);border-top:2px solid var(--ink)}
+.about-in{display:flex;flex-direction:column;gap:14px}
+@media (min-width:768px){.about{border-top:0;position:relative}.about::before{content:"";position:absolute;top:0;left:var(--gut);right:var(--gut-r);border-top:2px solid var(--ink)}
+.about-in{flex-direction:row;align-items:center;justify-content:space-between}}
+.about p{margin:0;max-width:60ch;color:var(--ink-2)}
+.about strong{color:var(--ink)}
+.about a.inline{font-weight:800;text-underline-offset:3px}
+
+/* ---------- dialogs ---------- */
+dialog{padding:0;border:0;max-width:none;max-height:none;margin:0;width:100%;height:100%;color:var(--ink)}
+dialog::backdrop{background:rgba(16,14,26,.6)}
+#detail{background:var(--shell);overflow-y:auto;overscroll-behavior:contain}
+#detail[open]{animation:sheetIn .38s var(--ease)}
+@keyframes sheetIn{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.d-bar{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:max(10px,env(safe-area-inset-top)) var(--gut-r) 10px var(--gut);pointer-events:none}
+.d-bar > *{pointer-events:auto}
+.icon-btn{width:48px;height:48px;border-radius:50%;border:0;background:var(--ink);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 0 #0c0a17,0 6px 16px rgba(0,0,0,.25);transition:transform .08s,box-shadow .08s,background .15s}
+.icon-btn:hover{background:#3a3655}
+.icon-btn:active{transform:translateY(3px);box-shadow:0 0 0 #0c0a17}
+.icon-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.icon-btn svg{width:22px;height:22px}
+.d-hero{margin-top:-68px;position:relative;background:var(--screen)}
+.d-hero .ph{aspect-ratio:1024/572;max-height:72vh;width:100%}
+@media (min-width:900px){.d-hero .ph{aspect-ratio:auto;height:min(64vh,620px)}}
+.d-hero::after{content:"";position:absolute;inset:auto 0 0 0;height:45%;background:linear-gradient(0deg,rgba(16,14,26,.7),transparent);pointer-events:none}
+.d-title{position:absolute;left:var(--gut);bottom:22px;z-index:2;right:var(--gut-r)}
+.d-band{background:var(--c);color:var(--ci);padding:18px 0;box-shadow:inset 0 -4px 0 rgba(0,0,0,.1)}
+.g-pf .d-band{background-image:repeating-linear-gradient(180deg,transparent 0 23px,rgba(80,120,200,.22) 23px 24px)}
+.d-band .wrap{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.d-actions{display:flex;flex-wrap:wrap;gap:10px}
+.d-band .btn-ghost{--bt:var(--ci);box-shadow:inset 0 0 0 2px var(--ci)}
+.d-band .btn-here{--bc:var(--ci);--bt:var(--c);--bs:#000}
+.g-pf .d-band .btn-here{--bt:#fff}
+.d-facts{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.d-grid{display:grid;gap:40px;padding-top:36px;padding-bottom:calc(48px + env(safe-area-inset-bottom))}
+@media (min-width:960px){.d-grid{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:56px}}
+.d-grid h3{font:400 22px/1.15 var(--sign);margin:0 0 14px}
+.lede{font-size:clamp(19px,2.4vw,23px);line-height:1.45;font-weight:700;margin:0 0 16px;max-width:38ch}
+.d-copy p{max-width:62ch;margin:0 0 14px;color:#38334f}
+.features{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.features li{position:relative;padding-left:26px;max-width:60ch}
+.features li::before{content:"";position:absolute;left:2px;top:.5em;width:12px;height:12px;border-radius:3px;background:var(--c);box-shadow:inset 0 0 0 2px var(--ink);transform:rotate(45deg)}
+.panel{background:var(--shell-hi);border-radius:var(--r-m);padding:20px;box-shadow:inset 0 0 0 2px var(--shell-2)}
+.panel + .panel{margin-top:20px}
+table.controls{width:100%;border-collapse:collapse;font-size:14.5px}
+.controls th,.controls td{text-align:left;padding:10px 8px 10px 0;vertical-align:top;border-bottom:1px solid var(--shell-2)}
+.controls thead th{font-size:13px;color:var(--ink-2);font-weight:700}
+.controls tbody th{font-weight:800;width:34%}
+.controls tr:last-child td,.controls tr:last-child th{border-bottom:0}
+@media (max-width:599px){
+  .controls thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .controls tr{display:block;padding:12px 0;border-bottom:1px solid var(--shell-2)}
+  .controls tr:last-child{border-bottom:0}
+  .controls th,.controls td{display:grid;grid-template-columns:84px 1fr;gap:8px;border:0;padding:3px 0;width:auto}
+  .controls tbody th{display:block;width:auto;font-size:15.5px;padding-bottom:6px}
+  .controls td::before{content:attr(data-l);color:var(--ink-2);font-weight:700;font-size:13px;padding-top:2px}
+}
+kbd{font:700 12.5px/1 var(--ui);display:inline-block;padding:4px 7px;border-radius:5px;background:#fff;box-shadow:0 2px 0 var(--shell-2),inset 0 0 0 1px var(--shell-2);margin:0 2px 4px 0}
+.plat-list{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.plat-list li{display:flex;gap:10px;align-items:center;font-weight:700}
+.plat-list svg{width:24px;height:24px}
+
+.gal-wrap{position:relative;margin-top:8px}
+.gal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.gal-head h3{margin:0}
+.gal-nav{display:flex;gap:8px}
+.gallery{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px var(--gut-r) 16px var(--gut);margin:0 calc(-1 * var(--gut-r)) 0 calc(-1 * var(--gut));scrollbar-width:none;list-style:none}
+.gallery::-webkit-scrollbar{display:none}
+.gallery li{flex:0 0 min(82%,520px);scroll-snap-align:start;scroll-margin-left:var(--gut)}
+.shot{display:block;width:100%;padding:0;border:0;border-radius:var(--r-m);overflow:hidden;cursor:zoom-in;box-shadow:0 0 0 3px var(--ink);background:none;transition:transform .2s var(--ease)}
+.shot .ph{aspect-ratio:1024/572}
+.shot:hover{transform:translateY(-3px)}
+.shot:active{transform:translateY(0) scale(.99)}
+.shot:focus-visible{outline:4px solid var(--c2);outline-offset:3px}
+
+/* lightbox */
+#lightbox{background:rgba(12,10,22,.96);color:#fff}
+#lightbox[open]{display:grid;grid-template-rows:auto 1fr auto}
+.lb-top{display:flex;justify-content:space-between;align-items:center;padding:max(10px,env(safe-area-inset-top)) var(--gut-r) 10px var(--gut)}
+.lb-count{font-weight:700;font-size:14px;color:#cfcae4}
+.lb-stage{display:grid;place-items:center;min-height:0;padding:0 var(--gut-r) 0 var(--gut);touch-action:pan-y}
+.lb-stage img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:10px;user-select:none;-webkit-user-drag:none}
+.lb-bottom{display:flex;justify-content:center;gap:16px;padding:12px 16px max(16px,env(safe-area-inset-bottom))}
+#lightbox .icon-btn{background:#3a3655}
+#lightbox .icon-btn:focus-visible,#player .icon-btn:focus-visible{outline-color:#fff}
+
+/* player */
+#player{background:#000;color:#fff}
+#player[open]{display:flex;flex-direction:column}
+.pl-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:max(6px,env(safe-area-inset-top)) var(--gut-r) 6px var(--gut);background:#100e1a}
+.pl-title{font:400 15px/1.2 var(--sign);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-actions{display:flex;gap:8px;align-items:center}
+.pl-actions .btn{min-height:44px;padding:0 16px;font-size:14px;--bc:#3a3655;--bs:#0c0a17}
+.pl-stage{position:relative;flex:1;min-height:0}
+.pl-stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.pl-loading{position:absolute;inset:0;display:grid;place-items:center;gap:14px;align-content:center;color:#cfcae4;font-weight:700;background:#100e1a;transition:opacity .3s}
+.pl-loading[hidden]{display:none}
+.spinner{width:42px;height:42px;border-radius:50%;border:4px solid #3a3655;border-top-color:var(--c,#fff);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pl-rotate{position:absolute;inset:0;z-index:3;display:none;place-items:center;align-content:center;gap:18px;padding:24px;text-align:center;background:#100e1a}
+.pl-rotate svg{width:72px;height:72px;animation:tilt 2.2s var(--ease) infinite}
+.pl-rotate p{margin:0;max-width:30ch;color:#e4e0f2}
+@keyframes tilt{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait) and (max-width:820px){#player.wants-landscape:not(.dismissed) .pl-rotate{display:grid}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .slide .art img{transform:none}
+}
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <a class="brand" href="#" aria-label="[game] Arcade, home"><span class="led" aria-hidden="true"></span><span class="brand-word"><b>game</b>Arcade</span></a>
+  <a class="top-link" href="https://yuradanilov.com" target="_blank" rel="noopener">yuradanilov.com</a>
+</header>
+
+<main>
+  <section class="wrap" aria-label="Featured games">
+    <div class="console">
+      <div class="screen" id="carousel" role="region" aria-roledescription="carousel" aria-label="Featured games" tabindex="0">
+        <div class="slides" id="slides" aria-live="off"></div>
+      </div>
+      <div class="hero-controls">
+        <div class="dots" id="dots" role="group" aria-label="Choose a featured game"></div>
+        <div class="pad">
+          <button type="button" id="hPause" aria-label="Pause rotation"></button>
+          <button type="button" id="hPrev" aria-label="Previous game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <button type="button" id="hNext" aria-label="Next game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="shelfTitle">
+    <div class="sec-head">
+      <h2 id="shelfTitle">On the shelf</h2>
+      <p id="shelfCount"></p>
+    </div>
+    <ul class="shelf" id="shelf"></ul>
+    <div class="shelf-plank" aria-hidden="true"></div>
+  </section>
+</main>
+
+<footer class="wrap about">
+  <div class="about-in">
+    <p><strong>Made by Yura Danilov with Claude.</strong> Every game is a single web page built in three.js and plays free in the browser, no install. Art made in Google Flow.</p>
+    <a class="btn btn-ghost" href="https://yuradanilov.com" target="_blank" rel="noopener">More from Yura</a>
+  </div>
+</footer>
+
+<!-- detail sheet -->
+<dialog id="detail" aria-labelledby="dTitle"></dialog>
+
+<!-- lightbox -->
+<dialog id="lightbox" aria-label="Screenshot viewer">
+  <div class="lb-top">
+    <span class="lb-count" id="lbCount" aria-live="polite"></span>
+    <button class="icon-btn" type="button" data-close aria-label="Close screenshot viewer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="lb-stage" id="lbStage"><img id="lbImg" alt="" width="1024" height="572"></div>
+  <div class="lb-bottom">
+    <button class="icon-btn" type="button" id="lbPrev" aria-label="Previous screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="icon-btn" type="button" id="lbNext" aria-label="Next screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+</dialog>
+
+<!-- player -->
+<dialog id="player" aria-labelledby="plTitle">
+  <div class="pl-bar">
+    <span class="pl-title" id="plTitle"></span>
+    <div class="pl-actions">
+      <a class="btn" id="plNewTab" target="_blank" rel="noopener">New tab</a>
+      <button class="icon-btn" type="button" data-close aria-label="Close game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+  </div>
+  <div class="pl-stage">
+    <div class="pl-loading" id="plLoading"><div class="spinner" aria-hidden="true"></div><span>Loading game…</span></div>
+    <div class="pl-rotate" id="plRotate">
+      <svg viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" aria-hidden="true"><rect x="20" y="6" width="24" height="52" rx="5"/><path d="M29 51h6"/></svg>
+      <p id="plRotateText">Turn your phone sideways. This game plays best in landscape.</p>
+      <button class="btn btn-game" type="button" id="plRotateGo">Play in portrait anyway</button>
+    </div>
+    <iframe id="plFrame" title="Game" allow="fullscreen; autoplay; gamepad; accelerometer; gyroscope" allowfullscreen></iframe>
+  </div>
+  <span class="sr" tabindex="0" id="plSentinel"></span>
+</dialog>
+
+<script>
+/* ==========================================================
+   GAMES — the whole catalogue. To add a game, append an object.
+   ========================================================== */
+const GAMES = [
+  {
+    id: "frankfurt-falls",
+    theme: "g-ff",
+    title: "Frankfurt Falls",
+    logo: 'Frankfurt<span>Falls</span>',
+    logoClass: "logo-ff",
+    genre: "3D rage climber",
+    pitch: "Climb Chef Le Grill's food tower as Frank, a floppy hotdog, and free your buddies one floor at a time.",
+    tags: ["Rage climber", "Comedy", "Boss fights"],
+    badges: [["4", "floors"], ["6", "hazards"]],
+    platforms: ["desktop", "mobile", "gamepad"],
+    play: "https://game-frankfurt-falls.vercel.app",
+    code: "https://github.com/ydanilov/game-frankfurt-falls",
+    cover: "assets/ff_title.webp",
+    coverAlt: "Frank the hotdog climbs a skyscraper of burgers and waffles while Chef Le Grill shakes his fist from the roof",
+    shots: [
+      ["assets/ff_comic1.webp", "Comic intro, page one"],
+      ["assets/ff_comic2.webp", "Comic intro, page two"],
+      ["assets/ff_comic3.webp", "Comic intro, page three"],
+      ["assets/ff_comic4.webp", "Comic intro, page four"],
+      ["assets/ff_shop.webp", "Frank's Closet, the cosmetics shop"],
+      ["assets/ff_victory.webp", "Victory on the roof"]
+    ],
+    lede: "Chef Le Grill has locked your buddies in his tower of food. You are a hotdog with noodle arms. Good luck.",
+    about: [
+      "Every floor has a food gatekeeper with a would-you-rather question. Whatever you pick adds a hazard, and it stays for every floor above: greasy floors, endless wind, wiener dogs, ketchup rain, hot burners, sticky mustard. By the roof you are climbing through all your own bad decisions at once.",
+      "In a bright 1930s rubber-hose cartoon style, with a comic book intro and a real chance of falling all the way down."
+    ],
+    features: [
+      "Floppy physics climbing where every slip can cost you a floor",
+      "Would-you-rather gatekeepers whose hazards stack on every floor above",
+      "Bridge duels against evil hotdogs with condiment weapons",
+      "Chef Le Grill boss fight on the roof",
+      "Frank's Closet: unlock hats, outfits and other cosmetics",
+      "Comic book intro that sets up the rescue"
+    ],
+    controls: [
+      ["Move", "WASD or arrow keys", "Left stick", "Left side of screen"],
+      ["Jump", "Space", "✕", "Jump button"],
+      ["Charge jump", "Shift (hold)", "R2", "Hold jump"],
+      ["Grab", "G", "□", "Grab button"],
+      ["Shoot / slap", "J / K", "R1 / L1", "On-screen buttons"],
+      ["Camera", "Q E R F", "Right stick", "Drag right side"]
+    ]
+  },
+  {
+    id: "jutsu-clash",
+    theme: "g-jc",
+    title: "Jutsu Clash",
+    logo: 'Jutsu <span>Clash</span>',
+    logoClass: "logo-jc",
+    genre: "3D elemental tower defense",
+    pitch: "Hold the floating islands with stick-man ninja towers. Fuse fire, water, earth and air into new elements.",
+    tags: ["Tower defense", "Strategy", "Fusion"],
+    badges: [["20", "waves"], ["3", "maps"]],
+    platforms: ["desktop", "mobile", "gamepad"],
+    landscape: true,
+    play: "https://game-jutsu-clash.vercel.app",
+    code: "https://github.com/ydanilov/game-jutsu-clash",
+    cover: "assets/jc_title.webp",
+    coverAlt: "A floating island with fire, water, earth and air towers holding off a line of stick-man ninjas pouring from a purple portal",
+    shots: [
+      ["assets/jc_meadow.webp", "Flower Meadow island"],
+      ["assets/jc_sakura.webp", "Sakura Hills island"],
+      ["assets/jc_snow.webp", "Snow Village island"],
+      ["assets/jc_shogun.webp", "The Shogun arrives at wave 20"],
+      ["assets/jc_victory.webp", "Victory screen"],
+      ["assets/jc_defeat.webp", "Defeat screen"]
+    ],
+    lede: "Chibi ninjas are marching out of the portal. Build towers, mix elements, and keep them off your island.",
+    about: [
+      "Start with four towers: fire, water, earth and air. Drag one onto another to fuse them into something new, like Inferno, Steam, Lightning, Ice, Sand, Magma or Wood. Every new element you discover goes into the codex.",
+      "Three floating islands with twenty waves each, Ronin mini-bosses along the way and the Shogun at wave 20. All in cute low-poly at golden hour."
+    ],
+    features: [
+      "4 base towers that fuse into new elements by drag and drop",
+      "A codex that fills up as you discover fusions",
+      "3 floating-island maps: Flower Meadow, Sakura Hills, Snow Village",
+      "20 waves per map, Ronin mini-bosses and the Shogun at wave 20",
+      "Anime ultimates: Meteor, Tsunami, Tornado",
+      "Speed up, pause and zoom whenever you need to"
+    ],
+    controls: [
+      ["Place / fuse tower", "Click, drag onto tower", "✕ on a slot", "Tap, drag onto tower"],
+      ["Next wave", "Space", "✕", "Next wave button"],
+      ["Ultimate", "E (Q to switch)", "△", "Ultimate button"],
+      ["Turn / zoom", "Z C, + −", "Right stick", "Drag, pinch"],
+      ["Speed / pause", "T / P", "Options", "Top bar buttons"]
+    ]
+  },
+  {
+    id: "paper-flight",
+    theme: "g-pf",
+    title: "Paper Flight",
+    logo: 'Paper Flight',
+    logoClass: "logo-pf",
+    genre: "3D paper plane adventure",
+    pitch: "Friday, 3:14 pm. Fly Sam's note to Mia room by room across school before the 3:30 bell.",
+    tags: ["Adventure", "Story", "Flying"],
+    badges: [["16", "levels"], ["8", "crafts"]],
+    platforms: ["desktop", "mobile", "gamepad"],
+    play: "https://game-paper-flight.vercel.app",
+    code: "https://github.com/ydanilov/paper-flight",
+    cover: "assets/pf_title.webp",
+    coverAlt: "Sam leans out of a school window and launches a paper plane over a hand-drawn town",
+    shots: [
+      ["assets/pf_map.webp", "The school map"],
+      ["assets/pf_grimsby.webp", "Principal Grimsby and his paper storm"],
+      ["assets/pf_diary.webp", "Sam's diary"],
+      ["assets/pf_ending.webp", "The ending"]
+    ],
+    lede: "Sam folded a note for Mia into a paper plane. It has sixteen minutes to get there.",
+    about: [
+      "Fly through classrooms, corridors and the gym, then out to the art room, the rooftop at night, the bus home, the town, Mia's party, Sam's house and a rainy day. Classmates have running jokes and you choose what Sam says back. Everything lands in Sam's diary.",
+      "Principal Grimsby waits at the end with a paper storm in four phases. Drawn like a storybook on notebook paper."
+    ],
+    features: [
+      "16 levels: 9 story levels plus bonus flights",
+      "8 crafts with their own abilities: dart, glider, swallow, boat, ball, spinner, crane, hawk",
+      "Boss fight with Principal Grimsby's 4-phase paper storm",
+      "Hangar decorator and a course maker for your own levels",
+      "Daily flight, ghost replays and medals",
+      "Classmates with dialogue choices, and Sam's diary"
+    ],
+    controls: [
+      ["Steer", "WASD or arrow keys", "Left stick", "Drag or tilt"],
+      ["Gust / ability", "Space or Shift", "✕", "Gust button"],
+      ["Brake", "Ctrl or Z", "○", "Brake button"],
+      ["U-turn", "X", "□", "U-turn button"],
+      ["Pause", "Esc or P", "Options", "Pause button"]
+    ]
+  }
+];
+
+/* ---------- helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const ICON = {
+  desktop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M9 20h6M12 16v4"/></svg>',
+  mobile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>',
+  gamepad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M7 7h10a5 5 0 0 1 4.6 7l-1 2.4a2.2 2.2 0 0 1-3.7.5L15 15H9l-1.9 1.9a2.2 2.2 0 0 1-3.7-.5L2.4 14A5 5 0 0 1 7 7z"/><path d="M7 10v3M5.5 11.5h3"/><circle cx="16" cy="10.5" r=".6" fill="currentColor"/><circle cx="17.5" cy="12.5" r=".6" fill="currentColor"/></svg>',
+  play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>',
+  ext: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+  screen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>',
+  code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>',
+  arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6"/></svg>',
+  back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+  resume: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>'
+};
+const PLAT_NAME = { desktop: "Desktop browser", mobile: "Phone and tablet", gamepad: "Gamepad (DualShock 4)" };
+
+/* image with skeleton: width/height fixed to avoid layout shift */
+function pic(src, alt, { lazy = true, eager = false, cls = "" } = {}) {
+  return `<div class="ph ${cls}"><img src="${esc(src)}" alt="${esc(alt)}" width="1024" height="572" decoding="async" ${lazy && !eager ? 'loading="lazy"' : ''} ${eager ? 'fetchpriority="high"' : ''}></div>`;
+}
+function wireImages(root) {
+  root.querySelectorAll(".ph img").forEach(img => {
+    const box = img.parentElement;
+    const done = () => box.classList.add("loaded");
+    if (img.complete && img.naturalWidth) done();
+    else {
+      img.addEventListener("load", done, { once: true });
+      img.addEventListener("error", () => box.classList.add("failed"), { once: true });
+    }
+  });
+}
+const platIcons = g => `<span class="plats" role="img" aria-label="Plays on ${g.platforms.map(p => PLAT_NAME[p]).join(", ")}">${g.platforms.map(p => ICON[p]).join("")}</span>`;
+const badges = g => `<span class="badges">${g.badges.map(([n, l]) => `<span class="badge"><b>${esc(n)}</b>${esc(l)}</span>`).join("")}</span>`;
+
+/* ---------- hero carousel ---------- */
+const Hero = (() => {
+  const slidesEl = $("#slides"), dotsEl = $("#dots"), root = $("#carousel");
+  const pauseBtn = $("#hPause");
+  const DUR = 7000;
+  let i = 0, t0 = 0, elapsed = 0, raf = 0, hoverPause = false, userPaused = reduceMotion;
+
+  if (!GAMES.length) { root.closest("section").hidden = true; return { go() {} }; }
+
+  slidesEl.innerHTML = GAMES.map((g, n) => `
+    <article class="slide ${g.theme}" id="slide-${g.id}" role="group" aria-roledescription="slide" aria-label="${n + 1} of ${GAMES.length}: ${esc(g.title)}" ${n ? 'aria-hidden="true"' : ''}>
+      <div class="art">${pic(g.cover, g.coverAlt, { eager: n === 0, lazy: n !== 0 })}</div>
+      <div class="info">
+        <h2 class="logo ${g.logoClass}">${g.logo}</h2>
+        <p class="pitch">${esc(g.pitch)}</p>
+        <div class="tagrow"><span class="chip">${esc(g.genre)}</span>${g.badges.map(([n, l]) => `<span class="chip">${esc(n)} ${esc(l)}</span>`).join("")}</div>
+        <div class="d-actions">
+          <a class="btn btn-game btn-play" href="${esc(g.play)}" target="_blank" rel="noopener" data-hero-play>${ICON.play}Play</a>
+          <a class="btn btn-ghost" style="--bt:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)" href="#${g.id}" data-open="${g.id}">See details</a>
+        </div>
+      </div>
+    </article>`).join("");
+  // hero images: make the hero ones eager-ish but non-first lazy is fine; preload neighbours after load
+  dotsEl.innerHTML = GAMES.map((g, n) => `<button class="dot" type="button" aria-label="Show ${esc(g.title)}" style="--dc:var(--${g.theme.slice(2)})"><span></span></button>`).join("");
+  wireImages(slidesEl);
+  const slides = [...slidesEl.children], dots = [...dotsEl.children];
+
+  function render() {
+    slides.forEach((s, n) => {
+      const on = n === i;
+      s.classList.toggle("on", on);
+      s.toggleAttribute("aria-hidden", !on);
+      s.inert = !on;
+    });
+    dots.forEach((d, n) => d.setAttribute("aria-current", n === i ? "true" : "false"));
+  }
+  function go(n, user) {
+    i = (n + GAMES.length) % GAMES.length;
+    elapsed = 0; t0 = performance.now();
+    render();
+    if (user) slidesEl.setAttribute("aria-live", "polite");
+  }
+  function paused() { return userPaused || hoverPause || document.hidden; }
+  function tick(now) {
+    if (!paused()) {
+      elapsed += now - t0;
+      if (elapsed >= DUR) go(i + 1);
+    }
+    t0 = now;
+    const d = dots[i]; if (d) d.style.setProperty("--p", Math.min(1, elapsed / DUR).toFixed(3));
+    raf = requestAnimationFrame(tick);
+  }
+  function setPauseUI() {
+    pauseBtn.innerHTML = userPaused ? ICON.resume : ICON.pause;
+    pauseBtn.setAttribute("aria-label", userPaused ? "Resume rotation" : "Pause rotation");
+    pauseBtn.setAttribute("aria-pressed", userPaused ? "true" : "false");
+  }
+  dots.forEach((d, n) => d.addEventListener("click", () => go(n, true)));
+  $("#hPrev").addEventListener("click", () => go(i - 1, true));
+  $("#hNext").addEventListener("click", () => go(i + 1, true));
+  pauseBtn.addEventListener("click", () => { userPaused = !userPaused; setPauseUI(); });
+  const console_ = root.closest(".console");
+  console_.addEventListener("mouseenter", () => hoverPause = true);
+  console_.addEventListener("mouseleave", () => hoverPause = false);
+  console_.addEventListener("focusin", () => hoverPause = true);
+  console_.addEventListener("focusout", e => { if (!console_.contains(e.relatedTarget)) hoverPause = false; });
+  root.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") { e.preventDefault(); go(i + 1, true); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); go(i - 1, true); }
+  });
+  // swipe
+  let sx = null, sy = 0;
+  root.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") { sx = e.clientX; sy = e.clientY; } });
+  root.addEventListener("pointerup", e => {
+    if (sx === null) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) go(i + (dx < 0 ? 1 : -1), true);
+  });
+  root.addEventListener("pointercancel", () => sx = null);
+  setPauseUI(); go(0); raf = requestAnimationFrame(tick);
+  return { go, get index() { return i; } };
+})();
+
+/* ---------- shelf ---------- */
+(function shelf() {
+  const el = $("#shelf");
+  $("#shelfCount").textContent = GAMES.length ? `${GAMES.length} game${GAMES.length > 1 ? "s" : ""}, free in your browser` : "";
+  if (!GAMES.length) { el.innerHTML = `<li class="empty">No games on the shelf yet. Add one to the GAMES list in index.html.</li>`; return; }
+  el.innerHTML = GAMES.map(g => `
+    <li class="cart-wrap ${g.theme}">
+      <a class="cart" href="#${g.id}" data-open="${g.id}" aria-label="${esc(g.title)}, ${esc(g.genre)}. Open details">
+        <div class="cart-grip" aria-hidden="true"></div>
+        <div class="cart-label">
+          ${pic(g.cover, "", {})}
+          <p class="logo ${g.logoClass}" aria-hidden="true">${g.logo}</p>
+        </div>
+        <div class="cart-body">
+          <p class="cart-genre">${esc(g.genre)}</p>
+          <div class="tags">${g.tags.map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+          <div class="cart-meta">${badges(g)}${platIcons(g)}</div>
+          <span class="cart-open">Details${ICON.arrow}</span>
+        </div>
+      </a>
+    </li>`).join("");
+  wireImages(el);
+})();
+
+/* ---------- modal plumbing: focus trap + scroll lock ---------- */
+const openStack = [];
+function trap(dlg, e) {
+  if (e.key !== "Tab") return;
+  const f = [...dlg.querySelectorAll('a[href],button:not([disabled]),iframe,[tabindex]:not([tabindex="-1"])')].filter(x => x.offsetParent !== null || x.tagName === "IFRAME");
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+function openModal(dlg, opener) {
+  dlg._opener = opener || document.activeElement;
+  if (!dlg.open) dlg.showModal();
+  openStack.push(dlg);
+  document.documentElement.classList.add("lock");
+}
+function closeModal(dlg) {
+  if (!dlg.open) return;
+  dlg.close();
+}
+document.querySelectorAll("dialog").forEach(d => {
+  d.addEventListener("keydown", e => trap(d, e));
+  d.addEventListener("cancel", e => { e.preventDefault(); d.dispatchEvent(new Event("request-close")); });
+  d.addEventListener("click", e => { if (e.target.closest("[data-close]")) d.dispatchEvent(new Event("request-close")); });
+  d.addEventListener("close", () => {
+    const k = openStack.indexOf(d); if (k > -1) openStack.splice(k, 1);
+    if (!openStack.length) document.documentElement.classList.remove("lock");
+    const o = d._opener; if (o && o.isConnected && typeof o.focus === "function") o.focus({ preventScroll: true });
+  });
+});
+
+/* ---------- detail view (deep link #id) ---------- */
+const detail = $("#detail");
+let current = null;
+function renderDetail(g) {
+  detail.className = g.theme;
+  detail.innerHTML = `
+    <div class="d-bar">
+      <button class="icon-btn" type="button" data-close aria-label="Back to the arcade">${ICON.back}</button>
+      <button class="icon-btn" type="button" data-close aria-label="Close details">${ICON.close}</button>
+    </div>
+    <div class="d-hero">
+      ${pic(g.cover, g.coverAlt, { eager: true })}
+      <div class="d-title"><h2 class="logo ${g.logoClass}" id="dTitle">${g.logo}</h2></div>
+    </div>
+    <div class="d-band">
+      <div class="wrap">
+        <div class="d-actions">
+          <a class="btn btn-game btn-play" style="--bc:var(--ci);--bt:${g.theme === 'g-pf' ? '#fff' : 'var(--c)'};--bs:#000" href="${esc(g.play)}" target="_blank" rel="noopener">${ICON.play}Play now</a>
+          <button class="btn btn-ghost" type="button" data-play-here>${ICON.screen}Play here</button>
+          <a class="btn btn-ghost" href="${esc(g.code)}" target="_blank" rel="noopener">${ICON.code}View code on GitHub</a>
+        </div>
+        <div class="d-facts">${badges(g)}${platIcons(g)}</div>
+      </div>
+    </div>
+    <div class="wrap d-grid">
+      <div>
+        <div class="d-copy">
+          <p class="lede">${esc(g.lede)}</p>
+          ${g.about.map(p => `<p>${esc(p)}</p>`).join("")}
+        </div>
+        ${g.shots && g.shots.length ? `
+        <div class="gal-wrap">
+          <div class="gal-head"><h3 id="galT">Screenshots</h3>
+            <div class="gal-nav">
+              <button class="icon-btn" type="button" data-gal="-1" aria-label="Scroll screenshots back">${ICON.back}</button>
+              <button class="icon-btn" type="button" data-gal="1" aria-label="Scroll screenshots forward"><span style="display:grid;transform:scaleX(-1)">${ICON.back}</span></button>
+            </div>
+          </div>
+          <ul class="gallery" aria-labelledby="galT">
+            ${g.shots.map(([src, cap], n) => `<li><button class="shot" type="button" data-shot="${n}" aria-label="Enlarge screenshot: ${esc(cap)}">${pic(src, cap)}</button></li>`).join("")}
+          </ul>
+        </div>` : ""}
+        <h3 style="margin-top:28px">What's inside</h3>
+        <ul class="features">${g.features.map(f => `<li>${esc(f)}</li>`).join("")}</ul>
+      </div>
+      <aside>
+        <div class="panel">
+          <h3>Controls</h3>
+          <table class="controls">
+            <thead><tr><th scope="col">Action</th><th scope="col">Keyboard</th><th scope="col">Gamepad</th><th scope="col">Touch</th></tr></thead>
+            <tbody>${g.controls.map(([a, k, p, t]) => `<tr><th scope="row">${esc(a)}</th><td data-l="Keyboard"><span>${k.split(/ or | \/ |, /).map(x => `<kbd>${esc(x)}</kbd>`).join(" ")}</span></td><td data-l="Gamepad">${esc(p)}</td><td data-l="Touch">${esc(t)}</td></tr>`).join("")}</tbody>
+          </table>
+        </div>
+        <div class="panel">
+          <h3>Plays on</h3>
+          <ul class="plat-list">${g.platforms.map(p => `<li>${ICON[p]}${PLAT_NAME[p]}</li>`).join("")}</ul>
+        </div>
+      </aside>
+    </div>`;
+  wireImages(detail);
+  const gal = detail.querySelector(".gallery");
+  if (gal) {
+    const [prev, next] = detail.querySelectorAll("[data-gal]");
+    const upd = () => { prev.disabled = gal.scrollLeft < 8; next.disabled = gal.scrollLeft + gal.clientWidth >= gal.scrollWidth - 8; };
+    gal.addEventListener("scroll", upd, { passive: true }); requestAnimationFrame(upd); addEventListener("resize", upd);
+    detail.querySelectorAll("[data-gal]").forEach(b => b.addEventListener("click", () => gal.scrollBy({ left: +b.dataset.gal * gal.clientWidth * .8, behavior: reduceMotion ? "auto" : "smooth" })));
+  }
+}
+// the controls table is wide; hide touch column on small screens via CSS-free approach: let it scroll
+function openDetail(id, opener, push) {
+  const g = GAMES.find(x => x.id === id);
+  if (!g) return false;
+  current = g;
+  renderDetail(g);
+  document.title = `${g.title} | [game] Arcade`;
+  if (push && location.hash !== "#" + id) history.pushState({ d: id }, "", "#" + id);
+  openModal(detail, opener);
+  detail.scrollTop = 0;
+  detail.querySelector("[data-close]").focus({ preventScroll: true });
+  return true;
+}
+function closeDetail(fromPop) {
+  if (!detail.open) return;
+  closeModal(detail);
+  document.title = "[game] Arcade";
+  if (!fromPop && location.hash) {
+    if (history.state && history.state.d) history.back();
+    else history.replaceState(null, "", location.pathname + location.search);
+  }
+}
+detail.addEventListener("request-close", () => closeDetail(false));
+detail.addEventListener("click", e => {
+  const s = e.target.closest("[data-shot]"); if (s) Lightbox.open(current, +s.dataset.shot, s);
+  const p = e.target.closest("[data-play-here]"); if (p) Player.open(current, p);
+});
+document.addEventListener("click", e => {
+  const a = e.target.closest("[data-open]");
+  if (!a || detail.contains(a)) return;
+  if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+  e.preventDefault();
+  openDetail(a.dataset.open, a, true);
+});
+function syncHash() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  if (id && GAMES.some(g => g.id === id)) { if (!detail.open || current.id !== id) openDetail(id, null, false); }
+  else if (detail.open) closeDetail(true);
+}
+addEventListener("popstate", syncHash);
+addEventListener("hashchange", syncHash);
+syncHash();
+
+/* ---------- lightbox ---------- */
+const Lightbox = (() => {
+  const dlg = $("#lightbox"), img = $("#lbImg"), count = $("#lbCount"), stage = $("#lbStage");
+  let g = null, i = 0;
+  function show() {
+    const [src, cap] = g.shots[i];
+    img.src = src; img.alt = cap;
+    count.textContent = `${i + 1} / ${g.shots.length}  ${cap}`;
+  }
+  function step(d) { i = (i + d + g.shots.length) % g.shots.length; show(); }
+  $("#lbPrev").addEventListener("click", () => step(-1));
+  $("#lbNext").addEventListener("click", () => step(1));
+  dlg.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
+  });
+  let sx = null, sy = 0;
+  stage.addEventListener("pointerdown", e => { sx = e.clientX; sy = e.clientY; });
+  stage.addEventListener("pointerup", e => {
+    if (sx === null) return; const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) step(dx < 0 ? 1 : -1);
+    else if (e.target === stage) dlg.dispatchEvent(new Event("request-close"));
+  });
+  dlg.addEventListener("request-close", () => closeModal(dlg));
+  return {
+    open(game, n, opener) { g = game; i = n; show(); openModal(dlg, opener); dlg.querySelector("[data-close]").focus(); },
+    get el() { return dlg; }
+  };
+})();
+
+/* ---------- in-page player ---------- */
+const Player = (() => {
+  const dlg = $("#player"), frame = $("#plFrame"), loading = $("#plLoading");
+  $("#plSentinel").addEventListener("focus", () => dlg.querySelector("#plNewTab").focus());
+  $("#plRotateGo").addEventListener("click", () => { dlg.classList.add("dismissed"); frame.focus(); });
+  frame.addEventListener("load", () => { if (frame.src && frame.src !== "about:blank") loading.hidden = true; });
+  dlg.addEventListener("request-close", () => {
+    closeModal(dlg);
+    frame.src = "about:blank"; // stop the game
+  });
+  return {
+    open(g, opener) {
+      dlg.className = g.theme + (g.landscape ? " wants-landscape" : "");
+      $("#plTitle").textContent = g.title;
+      $("#plNewTab").href = g.play;
+      $("#plRotateText").textContent = `Turn your phone sideways. ${g.title} plays best in landscape.`;
+      frame.title = `${g.title}, playable game`;
+      loading.hidden = false;
+      frame.src = g.play;
+      openModal(dlg, opener);
+      dlg.querySelector("[data-close]").focus();
+    }
+  };
+})();
+</script>
+</body>
+</html>
