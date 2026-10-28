@@ -18,7 +18,7 @@ const server = http.createServer((req, res) => {
 }).listen(0);
 const base = `http://127.0.0.1:${server.address().port}/`;
 
-const VIEWS = [["phone", 390, 844, true], ["tablet", 768, 1024, true], ["desktop", 1440, 900, false]];
+const VIEWS = [["phone", 390, 844, true], ["tablet", 768, 1024, true], ["desktop", 1440, 900, false], ["wide", 1920, 1080, false]];
 const IDS = ["frankfurt-falls", "jutsu-clash", "paper-flight"];
 let fails = 0;
 const ok = (c, m) => { console.log(`${c ? "PASS" : "FAIL"}  ${m}`); if (!c) fails++; };
@@ -44,22 +44,38 @@ for (const [name, width, height, touch] of VIEWS) {
   // carousel: next button and auto-advance
   const active = () => page.evaluate(() => document.querySelector(".slide.on").id);
   const a0 = await active();
-  await page.mouse.move(1, height - 1);
-  await page.click("#hNext");
-  ok((await active()) !== a0, "carousel advances with next button");
-  await page.mouse.move(1, 1); // leave console so hover-pause ends
-  await page.evaluate(() => document.activeElement.blur());
+  await page.mouse.move(width / 2, height - 2);
+  await page.locator("#dots button").nth(1).click();
+  ok((await active()) !== a0, "carousel jumps with progress indicator");
+  await page.mouse.move(width / 2, height - 2);
+  await page.evaluate(() => { document.activeElement.blur(); scrollTo(0, document.body.scrollHeight); });
+  await page.mouse.move(2, height - 2);
   const a1 = await active();
-  await page.waitForTimeout(7600);
+  await page.waitForTimeout(9700);
   ok((await active()) !== a1, "carousel auto-advances");
-  await page.focus("#carousel");
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.focus("#hero");
   const a2 = await active();
   await page.keyboard.press("ArrowRight");
   ok((await active()) !== a2, "carousel advances with arrow key");
+  // arrow navigation across rows
+  await page.locator('.tile-link').first().focus();
+  await page.keyboard.press("ArrowRight");
+  ok(await page.evaluate(() => document.activeElement === document.querySelectorAll(".tile-link")[1]), "arrow right moves focus along games row");
+  await page.keyboard.press("ArrowDown");
+  ok(await page.evaluate(() => document.activeElement.classList.contains("moment")), "arrow down moves focus to moments row");
+  if (!touch) {
+    await page.evaluate(() => scrollTo(0, 0));
+    await page.locator(".tile").nth(1).hover();
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: `${shots}/${name}-tile-hover.png` });
+  }
+  ok(await page.evaluate(() => !document.querySelector(".chip,.tag,.badge")), "no chips, tags or badges on the page");
+  ok(await page.evaluate(() => !/yura/i.test(document.documentElement.outerHTML)), "no leftover Yura references");
 
   // detail via card
   for (const id of IDS) {
-    await page.locator(`.shelf .cart[data-open="${id}"]`).click();
+    await page.locator(`.tile-link[data-open="${id}"]`).click();
     await page.waitForTimeout(450);
     ok(await page.evaluate(i => document.querySelector("#detail").open && location.hash === "#" + i, id), `detail opens via card: ${id}`);
     ok((await page.evaluate(() => document.querySelector("#detail").scrollWidth - document.querySelector("#detail").clientWidth)) <= 0, `detail has no horizontal overflow: ${id}`);
@@ -82,8 +98,11 @@ for (const [name, width, height, touch] of VIEWS) {
 
   // lightbox
   await page.goto(base + "#jutsu-clash", { waitUntil: "networkidle" });
-  await page.locator("#detail [data-shot]").first().scrollIntoViewIfNeeded();
-  await page.locator("#detail [data-shot]").first().click();
+  await page.locator("#detail [data-view='1']").click();
+  ok(await page.evaluate(() => document.querySelector("[data-thumb='1']").getAttribute("aria-current") === "true"), "screenshot viewer advances");
+  await page.locator("#detail .viewer-main").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `${shots}/${name}-detail-viewer.png` });
+  await page.locator("#detail .viewer-main").click();
   await page.waitForTimeout(250);
   ok(await page.evaluate(() => document.querySelector("#lightbox").open), "lightbox opens");
   const c1 = await page.textContent("#lbCount");
