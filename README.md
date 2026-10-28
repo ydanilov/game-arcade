@@ -2,15 +2,15 @@
 
 A store-style showcase for Yura Danilov's browser games: Frankfurt Falls, Jutsu Clash and Paper Flight.
 
-Live: https://game-arcade.vercel.app
+Live: https://yura-games.vercel.app
 
 One static page: `index.html` (inline CSS and JS, Google Fonts) plus art in `assets/`. No build step; Vercel serves the repo as is.
 
 ## Deep links
 
-- https://game-arcade.vercel.app/#frankfurt-falls
-- https://game-arcade.vercel.app/#jutsu-clash
-- https://game-arcade.vercel.app/#paper-flight
+- https://yura-games.vercel.app/#frankfurt-falls
+- https://yura-games.vercel.app/#jutsu-clash
+- https://yura-games.vercel.app/#paper-flight
 
 ## Add a new game
 
