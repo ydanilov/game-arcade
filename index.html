@@ -5,26 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Diego's Games</title>
 <meta name="description" content="Three handmade 3D browser games by Diego Danylov: Frankfurt Falls, Jutsu Clash and Paper Flight. Play free on desktop, phone or gamepad.">
+<meta name="author" content="Diego Danylov">
 <meta name="theme-color" content="#0b0b0f">
 <meta name="color-scheme" content="dark">
 <link rel="canonical" href="https://diego-games.vercel.app/">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Diego's Games">
-<meta property="og:title" content="Diego's Games: three browser games by Diego Danylov">
-<meta property="og:description" content="A rage-climbing hotdog, elemental ninja tower defense and a paper plane racing the 3:30 bell. Free, no install, desktop and mobile.">
+<meta property="og:title" content="Diego's Games">
+<meta property="og:description" content="Three browser games by Diego Danylov: a rage-climbing hotdog, elemental ninja tower defense and a paper plane racing the 3:30 bell. Free, no install.">
 <meta property="og:url" content="https://diego-games.vercel.app/">
-<meta property="og:image" content="https://diego-games.vercel.app/assets/pf_title.webp">
-<meta property="og:image:width" content="1024">
-<meta property="og:image:height" content="572">
-<meta property="og:image:alt" content="Sam leans out of a school window as a paper plane flies over town">
-<meta property="og:image" content="https://diego-games.vercel.app/assets/ff_title.webp">
-<meta property="og:image" content="https://diego-games.vercel.app/assets/jc_title.webp">
+<meta property="og:image" content="https://diego-games.vercel.app/og/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Key art from Frankfurt Falls, Jutsu Clash and Paper Flight">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Diego's Games: three browser games by Diego Danylov">
-<meta name="twitter:description" content="A rage-climbing hotdog, elemental ninja tower defense and a paper plane racing the 3:30 bell.">
-<meta name="twitter:image" content="https://diego-games.vercel.app/assets/pf_title.webp">
-<meta name="twitter:image:alt" content="Sam leans out of a school window as a paper plane flies over town">
+<meta name="twitter:title" content="Diego's Games">
+<meta name="twitter:description" content="Three browser games by Diego Danylov. Free, no install, desktop and mobile.">
+<meta name="twitter:image" content="https://diego-games.vercel.app/og/og.jpg">
+<meta name="twitter:image:alt" content="Key art from Frankfurt Falls, Jutsu Clash and Paper Flight">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0b0f'/%3E%3Cpath d='M24 18v28a2 2 0 0 0 3 1.7l22-14a2 2 0 0 0 0-3.4l-22-14A2 2 0 0 0 24 18z' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preload" as="image" href="assets/ff_title.webp" type="image/webp">
@@ -145,6 +145,10 @@ button{font:inherit;color:inherit}
 .btn-play:hover{background:#e6e6ea;box-shadow:0 0 0 4px color-mix(in srgb,var(--ac) 35%,transparent),0 0 28px color-mix(in srgb,var(--ac) 45%,transparent)}
 .btn-soft{background:rgba(120,120,135,.42);color:#fff;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .btn-soft:hover{background:rgba(140,140,155,.55)}
+.btn-icon{width:48px;padding:0}
+@media (min-width:700px){.btn-icon{width:52px}}
+.toast{position:fixed;z-index:2147483647;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,12px);max-width:calc(100vw - 32px);padding:12px 18px;border-radius:8px;background:#f4f4f6;color:#0b0b0f;font:600 15px/1.3 var(--ui);box-shadow:0 10px 30px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s,transform .25s var(--ease)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
 .btn-line{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
 .btn-line:hover{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.4)}
 .btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ac),0 0 22px color-mix(in srgb,var(--ac) 55%,transparent)}
@@ -272,7 +276,8 @@ dialog::backdrop{background:rgba(0,0,0,.7)}
 .d-genre{margin:0;color:var(--fg-2);font-size:15px;font-weight:500}
 .d-body{padding:22px var(--gut-r) calc(56px + env(safe-area-inset-bottom)) var(--gut);max-width:1480px;margin:0 auto}
 .d-actions{display:flex;flex-wrap:wrap;gap:10px}
-.d-actions .btn{flex:1 1 100%}
+.d-actions .btn{flex:1 1 0}
+.d-actions .btn-play{flex:1 1 100%}
 @media (min-width:520px){.d-actions .btn{flex:0 0 auto}.d-actions .btn-play{min-width:200px}}
 .d-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:36px;margin-top:32px}
 @media (min-width:1000px){.d-grid{grid-template-columns:minmax(0,1.7fr) minmax(300px,1fr);gap:48px;margin-top:40px}}
@@ -388,6 +393,7 @@ kbd{font:600 12px/1 var(--ui);display:inline-block;padding:4px 6px;border-radius
   </section>
 </main>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <footer class="foot"><p>Made by Diego Danylov · built with Claude · art made in Google Flow</p></footer>
 
 <dialog id="detail" aria-labelledby="dTitle"></dialog>
@@ -491,6 +497,7 @@ const GAMES = [
     play: "https://game-jutsu-clash.vercel.app",
     code: "https://github.com/ydanilov/game-jutsu-clash",
     trailers: [
+      ["assets/video/jc_trailer.mp4", "assets/video/jc_trailer.webp", "Trailer: Ronin, Meteor, Tsunami, Tornado, Shogun"],
       ["assets/video/jc_intro.mp4", "assets/video/jc_intro.webp", "Trailer: Kenji holds the shrine"]
     ],
     cover: "assets/jc_title.webp",
@@ -580,6 +587,7 @@ const ICON = {
   mobile: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>',
   gamepad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M7 7h10a5 5 0 0 1 4.6 7l-1 2.4a2.2 2.2 0 0 1-3.7.5L15 15H9l-1.9 1.9a2.2 2.2 0 0 1-3.7-.5L2.4 14A5 5 0 0 1 7 7z"/><path d="M7 10v3M5.5 11.5h3"/><circle cx="16" cy="10.5" r=".6" fill="currentColor"/><circle cx="17.5" cy="12.5" r=".6" fill="currentColor"/></svg>',
   play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3.5M7.5 8L12 3.5 16.5 8"/><path d="M5 12v7a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-7"/></svg>',
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>',
   screen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>',
   code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg>',
@@ -669,6 +677,7 @@ const Hero = (() => {
         <div class="actions">
           <a class="btn btn-play" href="${esc(g.play)}" target="_blank" rel="noopener" data-nav data-row="0">${ICON.play}Play</a>
           <a class="btn btn-soft" href="#${g.id}" data-open="${g.id}" data-nav data-row="0">${ICON.info}More info</a>
+          <button class="btn btn-soft btn-icon" type="button" data-share="${g.id}" data-nav data-row="0" aria-label="Share ${esc(g.title)}" title="Share">${ICON.share}</button>
         </div>
       </div>
     </article>`).join("");
@@ -684,11 +693,13 @@ const Hero = (() => {
     v.addEventListener("ended", () => {
       if (n !== i) return;
       loops++;
-      if (loops >= 2 && !paused()) go(i + 1);
-      else { if (loops >= 2) loops = 1; v.currentTime = 0; sync(); }
+      const need = plays(v);
+      if (loops >= need && !paused()) go(i + 1);
+      else { if (loops >= need) loops = need - 1; v.currentTime = 0; sync(); }
     });
     v.addEventListener("error", () => { if (v.getAttribute("src")) { v.dataset.failed = 1; v.classList.remove("playing"); if (n === i) root.classList.remove("has-video"); } });
   });
+  const plays = v => (v.duration || 8) > 12 ? 1 : 2;
   const vidOn = () => { const v = vids[i]; return !!(v && v.classList.contains("playing") && !v.dataset.failed); };
   function sync() {
     const v = vids[i]; if (!v) return;
@@ -720,7 +731,7 @@ const Hero = (() => {
     if (!paused() && !on) { elapsed += now - t0; if (elapsed >= DUR) go(i + 1); }
     t0 = now;
     let p = elapsed / DUR;
-    if (on) { const v = vids[i], D = v.duration || 8; p = (lead + (loops * D + v.currentTime) * 1000) / (lead + 2 * D * 1000); }
+    if (on) { const v = vids[i], D = v.duration || 8; p = (lead + (loops * D + v.currentTime) * 1000) / (lead + plays(v) * D * 1000); }
     dots[i].style.setProperty("--p", reduceMotion ? 1 : Math.min(1, p).toFixed(3));
     requestAnimationFrame(tick);
   }
@@ -926,6 +937,7 @@ function renderDetail(g) {
       <div class="d-actions">
         <a class="btn btn-play" href="${esc(g.play)}" target="_blank" rel="noopener">${ICON.play}Play</a>
         <button class="btn btn-soft" type="button" data-play-here>${ICON.screen}Play here</button>
+        <button class="btn btn-soft" type="button" data-share="${g.id}">${ICON.share}Share</button>
       </div>
       <div class="d-grid">
         <div>
@@ -1017,8 +1029,52 @@ document.addEventListener("click", e => {
   if (!a || detail.contains(a) || e.metaKey || e.ctrlKey || e.shiftKey) return;
   e.preventDefault(); openDetail(a.dataset.open, a, true);
 });
+/* ---------- sharing ---------- */
+const SITE = "https://diego-games.vercel.app";
+const shareUrl = g => `${SITE}/g/${g.id}/`;
+let toastT = 0;
+function toast(msg) {
+  const t = $("#toast");
+  // Dialogs sit in the top layer, so the toast moves into the open one to stay visible.
+  const top = openStack[openStack.length - 1];
+  (top || document.body).appendChild(t);
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove("on"), 2200);
+}
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+  (openStack[openStack.length - 1] || document.body).appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+  ta.remove(); return ok;
+}
+async function shareGame(g) {
+  const url = shareUrl(g), data = { title: `${g.title}, a game by Diego Danylov`, text: g.pitch, url };
+  if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
+    try { await navigator.share(data); return; } catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  toast(await copyText(url) ? "Link copied" : url);
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-share]"); if (!b) return;
+  const g = GAMES.find(x => x.id === b.dataset.share); if (g) shareGame(g);
+});
+
+/* ---------- deep links: #slug, #/game/slug and ?g=slug all open the game ---------- */
+(function normaliseLink() {
+  const q = new URLSearchParams(location.search).get("g");
+  const m = /^#\/?game\/([\w-]+)/.exec(location.hash);
+  const id = q || (m && m[1]);
+  if (id && GAMES.some(g => g.id === id)) {
+    const rest = new URLSearchParams(location.search); rest.delete("g");
+    history.replaceState(null, "", location.pathname + (rest.toString() ? "?" + rest : "") + "#" + id);
+  }
+})();
 function syncHash() {
-  const id = decodeURIComponent(location.hash.slice(1));
+  let id = decodeURIComponent(location.hash.slice(1));
+  const m = /^\/?game\/([\w-]+)$/.exec(id);
+  if (m && GAMES.some(g => g.id === m[1])) { id = m[1]; history.replaceState(history.state, "", "#" + id); }
   if (id && GAMES.some(g => g.id === id)) { if (!detail.open || current.id !== id) openDetail(id, null, false); }
   else if (detail.open) closeDetail(true);
 }

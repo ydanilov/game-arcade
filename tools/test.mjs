@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const shots = path.join(root, "tools", "shots");
 fs.mkdirSync(shots, { recursive: true });
-const TYPES = { ".html": "text/html", ".webp": "image/webp", ".js": "text/javascript", ".css": "text/css", ".mp4": "video/mp4" };
+const TYPES = { ".jpg": "image/jpeg", ".html": "text/html", ".webp": "image/webp", ".js": "text/javascript", ".css": "text/css", ".mp4": "video/mp4" };
 const server = http.createServer((req, res) => {
   const p = path.join(root, decodeURIComponent(new URL(req.url, "http://x").pathname).replace(/\/$/, "/index.html"));
   if (!p.startsWith(root) || !fs.existsSync(p)) { res.writeHead(404); return res.end(); }
@@ -79,7 +79,7 @@ for (const [name, width, height, touch] of VIEWS) {
   await page.evaluate(() => { document.activeElement.blur(); scrollTo(0, 0); });
   await page.mouse.move(2, height - 2);
   const a1 = await active();
-  await page.waitForFunction(a => document.querySelector(".slide.on").id !== a, a1, { timeout: 25000 }).catch(() => {});
+  await page.waitForFunction(a => document.querySelector(".slide.on").id !== a, a1, { timeout: 34000 }).catch(() => {});
   ok((await active()) !== a1, "carousel auto-advances after the trailer loops twice");
   await page.evaluate(() => scrollTo(0, 0));
   await page.focus("#hero");
@@ -196,6 +196,71 @@ for (const [name, width, height, touch] of VIEWS) {
   ok(rerr.length === 0, "no errors under reduced motion");
   await rctx.close();
 }
+// ---------- sharing, deep links, link previews ----------
+for (const [name, width, height, touch] of [["phone", 390, 844, true], ["desktop", 1440, 900, false]]) {
+  console.log(`\n== share ${name}`);
+  const ctx = await browser.newContext({ viewport: { width, height }, hasTouch: touch, isMobile: touch, reducedMotion: "reduce" });
+  await ctx.route(/game-.*\.vercel\.app/, r => r.fulfill({ contentType: "text/html", body: "stub" }));
+  // no Web Share API, and a recording clipboard, to exercise the copy fallback
+  await ctx.addInitScript(() => {
+    try { delete Navigator.prototype.share; delete Navigator.prototype.canShare; } catch (e) {}
+    window.__copied = [];
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: t => { window.__copied.push(t); return Promise.resolve(); } } });
+  });
+  const page = await ctx.newPage();
+  const errors = [];
+  page.on("pageerror", e => errors.push(String(e)));
+  page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
+  const isOpen = id => page.evaluate(i => document.querySelector("#detail").open && document.querySelector("#detail").className === document.querySelector(`.tile-link[data-open="${i}"]`).closest(".tile").classList[1], id);
+
+  for (const [url, id] of [["?g=jutsu-clash", "jutsu-clash"], ["#/game/paper-flight", "paper-flight"], ["#frankfurt-falls", "frankfurt-falls"], ["g/jutsu-clash/", "jutsu-clash"]]) {
+    await page.goto(base + url, { waitUntil: "load" });
+    await page.waitForFunction(() => document.querySelector("#detail") && document.querySelector("#detail").open, null, { timeout: 5000 }).catch(() => {});
+    ok(await isOpen(id) && (await page.evaluate(() => location.hash)) === "#" + id, `deep link ${url} opens ${id}`);
+  }
+  // back / forward
+  await page.goto(base, { waitUntil: "load" });
+  await page.locator('.tile-link[data-open="paper-flight"]').click();
+  await page.waitForTimeout(300);
+  await page.goBack(); await page.waitForTimeout(300);
+  ok(await page.evaluate(() => !document.querySelector("#detail").open), "back closes the detail page");
+  await page.goForward(); await page.waitForTimeout(300);
+  ok(await isOpen("paper-flight"), "forward reopens the detail page");
+
+  // share fallback from the detail page
+  await page.locator("#detail [data-share]").click();
+  await page.waitForTimeout(250);
+  ok(await page.evaluate(() => window.__copied.at(-1) === "https://diego-games.vercel.app/g/paper-flight/"), "share copies the game's /g/ link");
+  ok(await page.evaluate(() => { const t = document.querySelector("#toast"); return t.classList.contains("on") && t.textContent === "Link copied" && t.closest("dialog#detail"); }), "Link copied toast shows over the detail page");
+  await page.screenshot({ path: `${shots}/${name}-share-toast.png` });
+  await page.keyboard.press("Escape");
+  // share from the hero, with the Web Share API present
+  await page.evaluate(() => { window.__shared = null; navigator.share = d => { window.__shared = d; return Promise.resolve(); }; });
+  await page.locator(".slide.on [data-share]").click();
+  ok(await page.evaluate(() => window.__shared && /\/g\/[\w-]+\/$/.test(window.__shared.url) && window.__shared.title && window.__shared.text), "hero share uses navigator.share with title, text and /g/ link");
+  await page.screenshot({ path: `${shots}/${name}-hero-share.png` });
+  ok(errors.length === 0, `no console errors${errors.length ? ": " + errors.join(" | ") : ""}`);
+  await ctx.close();
+}
+
+// Open Graph tags on the storefront and each share page, and the images they point to
+{
+  const meta = (html, k) => { const m = new RegExp(`<meta (?:property|name)="${k}" content="([^"]*)"`).exec(html); return m && m[1]; };
+  const pages = [["", "og/og.jpg"], ...["frankfurt-falls", "jutsu-clash", "paper-flight"].map(id => [`g/${id}/`, `og/${id}.jpg`])];
+  const req = await (await browser.newContext()).request;
+  for (const [u, img] of pages) {
+    const html = await (await req.get(base + u)).text();
+    const good = meta(html, "og:image") === `https://diego-games.vercel.app/${img}` && meta(html, "twitter:image") === meta(html, "og:image") && meta(html, "twitter:card") === "summary_large_image" && meta(html, "og:title") && meta(html, "og:description") && meta(html, "author") === "Diego Danylov" && meta(html, "og:image:width") === "1200" && meta(html, "og:image:height") === "630";
+    const r = await req.get(base + img), buf = await r.body();
+    // JPEG SOF0/2 marker gives the pixel size
+    let w = 0, h = 0; for (let k = 2; k < buf.length - 9; k++) if (buf[k] === 0xff && (buf[k + 1] === 0xc0 || buf[k + 1] === 0xc2)) { h = buf.readUInt16BE(k + 5); w = buf.readUInt16BE(k + 7); break; }
+    ok(good && r.ok() && w === 1200 && h === 630, `Open Graph tags + 1200x630 image on /${u}`);
+  }
+  // trailer order
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  ok(html.indexOf("jc_trailer.mp4") > 0 && html.indexOf("jc_trailer.mp4") < html.indexOf("jc_intro.mp4"), "new Jutsu Clash trailer comes before jc_intro");
+}
+
 await browser.close();
 server.close();
 console.log(`\n${fails ? fails + " FAILED" : "ALL PASSED"}`);

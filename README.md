@@ -12,6 +12,16 @@ One static page: `index.html` (inline CSS and JS, Google Fonts) plus art in `ass
 - https://diego-games.vercel.app/#jutsu-clash
 - https://diego-games.vercel.app/#paper-flight
 
+## Share links
+
+Each game has a share page at `/g/<slug>/` (e.g. https://diego-games.vercel.app/g/jutsu-clash/) with that game's Open Graph / Twitter card, which redirects to the storefront deep link `/#<slug>`. The storefront also accepts `?g=<slug>` and `#/game/<slug>`. The Share buttons (hero and detail page) use the Web Share API, or copy the `/g/` link and show "Link copied".
+
+Preview images live in `og/` (1200×630: `og.jpg` for the storefront, `<slug>.jpg` per game). After adding or renaming a game, regenerate them and the share pages:
+
+```
+node tools/build-share.mjs
+```
+
 ## Add a new game
 
 1. Put the art in `assets/` as 1024×572 WebP: one `xx_title.webp` cover (no text in the image) plus any screenshots.
@@ -25,7 +35,8 @@ One static page: `index.html` (inline CSS and JS, Google Fonts) plus art in `ass
    - `trailers` (optional): `[[mp4, posterWebp, caption]]`, files in `assets/video/` (short, muted-friendly H.264 + AAC, faststart). The first one plays in the hero after 1.5 s, in the tile on hover and on the detail page; all of them lead the screenshot viewer and play with sound in the lightbox. Videos load lazily, only one plays at a time, and stills are kept under reduced motion or Data Saver.
    - `lede`, `about` (paragraphs), `features`, `controls` (`[action, keyboard, gamepad, touch]`)
    - `landscape: true` if phones should be asked to rotate in the in-page player
-3. The hero, the Games row, the Moments row (built from `shots`), the detail page, lightbox and player all pick it up automatically.
+3. Run `node tools/build-share.mjs` to make its share page and preview image.
+4. The hero, the Games row, the Moments row (built from `shots`), the detail page, lightbox and player all pick it up automatically.
 
 The game must allow being framed (no `X-Frame-Options: DENY`) for "Play here" to work; "Play now" always opens it in a new tab.
 
