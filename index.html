@@ -414,8 +414,7 @@ kbd{font:600 12px/1 var(--ui);display:inline-block;padding:4px 6px;border-radius
   <div class="pl-bar">
     <span class="pl-title" id="plTitle"></span>
     <div class="pl-actions">
-      <a class="btn btn-soft" id="plNewTab" target="_blank" rel="noopener">New tab</a>
-      <button class="icon-btn" type="button" data-close aria-label="Close game"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="icon-btn" type="button" data-close aria-label="Close game and go back to all games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
   </div>
   <div class="pl-stage">
@@ -634,7 +633,7 @@ const Media = (() => {
       M.load(v);
       v.muted = v.dataset.sound ? false : M.muted;
       const pr = v.play();
-      if (pr && pr.then) pr.then(() => { if (!M.allowed(v) || !v.isConnected) v.pause(); });
+      if (pr && pr.then) pr.then(() => { if (!M.allowed(v) || !v.isConnected) v.pause(); }, () => {});
       if (pr && pr.catch) pr.catch(() => {
         if (!v.muted && !v.dataset.sound) { M.setMuted(true); v.play().catch(() => {}); }
       });
@@ -675,7 +674,7 @@ const Hero = (() => {
         <h2 class="logo ${g.logoClass}">${g.logo}</h2>
         <p class="pitch">${esc(g.pitch)}</p>
         <div class="actions">
-          <a class="btn btn-play" href="${esc(g.play)}" target="_blank" rel="noopener" data-nav data-row="0">${ICON.play}Play</a>
+          <button class="btn btn-play" type="button" data-play="${g.id}" data-nav data-row="0">${ICON.play}Play</button>
           <a class="btn btn-soft" href="#${g.id}" data-open="${g.id}" data-nav data-row="0">${ICON.info}More info</a>
           <button class="btn btn-soft btn-icon" type="button" data-share="${g.id}" data-nav data-row="0" aria-label="Share ${esc(g.title)}" title="Share">${ICON.share}</button>
         </div>
@@ -764,13 +763,13 @@ const MOMENTS = GAMES.flatMap(g => (g.shots || []).map(([src, cap]) => ({ g, src
   if (!GAMES.length) { gt.outerHTML = `<p class="empty">No games yet. Add one to the GAMES list in index.html.</p>`; }
   else gt.innerHTML = GAMES.map(g => `
     <li class="tile ${g.theme}" style="${fp(g)}">
-      <a class="tile-link" href="#${g.id}" data-open="${g.id}" data-nav data-row="1" aria-label="${esc(g.title)}, ${esc(g.genre)}. More info">
+      <a class="tile-link" href="#${g.id}" data-play="${g.id}" data-nav data-row="1" aria-label="Play ${esc(g.title)}, ${esc(g.genre)}">
         ${pic(g.cover, "")}${g.trailers && g.trailers.length ? Media.vid(g.trailers[0][0]) : ""}
         <p class="logo ${g.logoClass}" aria-hidden="true">${g.logo}</p>
       </a>
       <div class="tile-more">
         <p class="tile-genre">${esc(g.genre)}</p>
-        <a class="tile-play" href="${esc(g.play)}" target="_blank" rel="noopener" aria-label="Play ${esc(g.title)}">${ICON.play}</a>
+        <button class="tile-play" type="button" data-play="${g.id}" tabindex="-1" aria-hidden="true">${ICON.play}</button>
       </div>
     </li>`).join("");
   // Netflix-style hover preview, desktop pointers only
@@ -935,8 +934,7 @@ function renderDetail(g) {
     </div>
     <div class="d-body">
       <div class="d-actions">
-        <a class="btn btn-play" href="${esc(g.play)}" target="_blank" rel="noopener">${ICON.play}Play</a>
-        <button class="btn btn-soft" type="button" data-play-here>${ICON.screen}Play here</button>
+        <button class="btn btn-play" type="button" data-play="${g.id}">${ICON.play}Play</button>
         <button class="btn btn-soft" type="button" data-share="${g.id}">${ICON.share}Share</button>
       </div>
       <div class="d-grid">
@@ -1023,7 +1021,11 @@ function closeDetail(fromPop) {
   }
 }
 detail.addEventListener("request-close", () => closeDetail(false));
-detail.addEventListener("click", e => { if (e.target.closest("[data-play-here]")) Player.open(current, e.target.closest("[data-play-here]")); });
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-play]"); if (!b) return;
+  const g = GAMES.find(x => x.id === b.dataset.play); if (!g) return;
+  e.preventDefault(); Player.open(g, b.closest(".tile") ? b.closest(".tile").querySelector(".tile-link") : b);
+});
 document.addEventListener("click", e => {
   const a = e.target.closest("[data-open]");
   if (!a || detail.contains(a) || e.metaKey || e.ctrlKey || e.shiftKey) return;
@@ -1124,18 +1126,22 @@ const Lightbox = (() => {
 /* ---------- in-page player ---------- */
 const Player = (() => {
   const dlg = $("#player"), frame = $("#plFrame"), loading = $("#plLoading");
-  $("#plSentinel").addEventListener("focus", () => $("#plNewTab").focus());
+  $("#plSentinel").addEventListener("focus", () => dlg.querySelector("[data-close]").focus());
   $("#plRotateGo").addEventListener("click", () => { dlg.classList.add("dismissed"); frame.focus(); });
   frame.addEventListener("load", () => { if (frame.src && frame.src !== "about:blank") loading.hidden = true; });
   dlg.addEventListener("request-close", () => { closeModal(dlg); frame.src = "about:blank"; });
+  // a game's own "All games" button asks the store to close the player
+  addEventListener("message", e => {
+    if (!dlg.open || e.source !== frame.contentWindow || !e.data || e.data.type !== "diego-games:exit") return;
+    dlg.dispatchEvent(new Event("request-close"));
+  });
   return {
     open(g, opener) {
       dlg.className = g.theme + (g.landscape ? " wants-landscape" : "");
       $("#plTitle").textContent = g.title;
-      $("#plNewTab").href = g.play;
       $("#plRotateText").textContent = `Turn your phone sideways. ${g.title} plays best in landscape.`;
       frame.title = `${g.title}, playable game`;
-      loading.hidden = false; frame.src = g.play;
+      loading.hidden = false; frame.src = g.play + (g.play.includes("?") ? "&" : "?") + "from=store";
       openModal(dlg, opener);
       dlg.querySelector("[data-close]").focus();
     }

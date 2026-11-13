@@ -107,7 +107,7 @@ for (const [name, width, height, touch] of VIEWS) {
 
   // detail via card
   for (const id of IDS) {
-    await page.locator(`.tile-link[data-open="${id}"]`).click();
+    await page.evaluate(i => { location.hash = i; }, id);
     await page.waitForTimeout(450);
     ok(await page.evaluate(i => document.querySelector("#detail").open && location.hash === "#" + i, id), `detail opens via card: ${id}`);
     await page.waitForFunction(() => { const v = document.querySelector(".d-hero video"); return v && !v.paused && v.classList.contains("playing"); }, null, { timeout: 8000 }).catch(() => {});
@@ -163,7 +163,7 @@ for (const [name, width, height, touch] of VIEWS) {
   await page.waitForTimeout(300);
 
   // player
-  await page.locator("#detail [data-play-here]").click();
+  await page.locator("#detail [data-play]").click();
   await page.waitForTimeout(600);
   ok(await page.evaluate(() => document.querySelector("#player").open && document.querySelector("#plFrame").src.includes("jutsu")), "player opens with iframe");
   await page.screenshot({ path: `${shots}/${name}-player.png` });
@@ -211,7 +211,7 @@ for (const [name, width, height, touch] of [["phone", 390, 844, true], ["desktop
   const errors = [];
   page.on("pageerror", e => errors.push(String(e)));
   page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
-  const isOpen = id => page.evaluate(i => document.querySelector("#detail").open && document.querySelector("#detail").className === document.querySelector(`.tile-link[data-open="${i}"]`).closest(".tile").classList[1], id);
+  const isOpen = id => page.evaluate(i => document.querySelector("#detail").open && document.querySelector("#detail").className === document.querySelector(`.tile-link[data-play="${i}"]`).closest(".tile").classList[1], id);
 
   for (const [url, id] of [["?g=jutsu-clash", "jutsu-clash"], ["#/game/paper-flight", "paper-flight"], ["#frankfurt-falls", "frankfurt-falls"], ["g/jutsu-clash/", "jutsu-clash"]]) {
     await page.goto(base + url, { waitUntil: "load" });
@@ -220,7 +220,7 @@ for (const [name, width, height, touch] of [["phone", 390, 844, true], ["desktop
   }
   // back / forward
   await page.goto(base, { waitUntil: "load" });
-  await page.locator('.tile-link[data-open="paper-flight"]').click();
+  await page.evaluate(() => { location.hash = "paper-flight"; });
   await page.waitForTimeout(300);
   await page.goBack(); await page.waitForTimeout(300);
   ok(await page.evaluate(() => !document.querySelector("#detail").open), "back closes the detail page");

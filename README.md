@@ -38,7 +38,7 @@ node tools/build-share.mjs
 3. Run `node tools/build-share.mjs` to make its share page and preview image.
 4. The hero, the Games row, the Moments row (built from `shots`), the detail page, lightbox and player all pick it up automatically.
 
-The game must allow being framed (no `X-Frame-Options: DENY`) for "Play here" to work; "Play now" always opens it in a new tab.
+There is one **Play** button everywhere (hero, tiles, detail page): it opens the game inside the store's in-page player with `?from=store`, so the visitor never leaves this domain. The game must allow being framed (no `X-Frame-Options: DENY`). A game that understands `?from=store` can skip its own splash and show an "All games" button that posts `{type:"diego-games:exit"}` to the parent window; the store then closes the player (Jutsu Clash does this).
 
 ## Test
 
