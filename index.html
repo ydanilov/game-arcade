@@ -131,6 +131,14 @@ button{font:inherit;color:inherit}
 .logo-jc{font-family:"Dela Gothic One",var(--ui);color:#fff;letter-spacing:-.01em;text-shadow:.045em .045em 0 #7d4ed8}
 .logo-jc span{color:#ff8fb6}
 .logo-pf{font-family:"Gochi Hand",var(--ui);color:#fff;line-height:.9;text-shadow:0 2px 14px rgba(0,0,0,.5)}
+.logo-img{display:block;width:auto;height:auto;max-width:100%;filter:drop-shadow(0 6px 18px rgba(0,0,0,.55))}
+.logo .logo-txt{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.logo.no-img .logo-txt{position:static;width:auto;height:auto;overflow:visible;clip-path:none;white-space:normal}
+.hero .logo-img{width:min(86vw,440px)}
+@media (min-width:700px){.hero .logo-img{width:clamp(340px,36vw,560px)}}
+.tile .logo-img{width:78%;margin:0 auto;filter:drop-shadow(0 3px 10px rgba(0,0,0,.6))}
+.d-head .logo-img{width:min(84vw,420px)}
+@media (min-width:700px){.d-head .logo-img{width:clamp(320px,32vw,520px)}}
 .hero .logo{font-size:clamp(46px,13vw,64px)}
 @media (min-width:700px){.hero .logo{font-size:clamp(56px,6.4vw,104px)}}
 .hero .logo-pf{font-size:clamp(54px,15vw,74px)}
@@ -441,6 +449,7 @@ const GAMES = [
     title: "Frankfurt Falls",
     logo: 'Frankfurt <span>Falls</span>',
     logoClass: "logo-ff",
+    logoImg: ["assets/logo/frankfurt-falls.webp", 1100, 632],
     genre: "3D rage climber",
     pitch: "Climb Chef Le Grill's food tower as Frank, a floppy hotdog, and free your buddies one floor at a time.",
     platforms: ["desktop", "mobile", "gamepad"],
@@ -489,6 +498,7 @@ const GAMES = [
     title: "Jutsu Clash",
     logo: 'Jutsu <span>Clash</span>',
     logoClass: "logo-jc",
+    logoImg: ["assets/logo/jutsu-clash.webp", 1100, 571],
     genre: "3D elemental tower defense",
     pitch: "Hold the floating islands with stick-man ninja towers. Fuse fire, water, earth and air into new elements.",
     platforms: ["desktop", "mobile", "gamepad"],
@@ -537,6 +547,7 @@ const GAMES = [
     title: "Paper Flight",
     logo: 'Paper Flight',
     logoClass: "logo-pf",
+    logoImg: ["assets/logo/paper-flight.webp", 1100, 512],
     genre: "3D paper plane adventure",
     pitch: "Friday, 3:14 pm. Fly Sam's note to Mia room by room across school before the 3:30 bell.",
     platforms: ["desktop", "mobile", "gamepad"],
@@ -598,6 +609,12 @@ const ICON = {
 };
 const PLAT_NAME = { desktop: "Desktop", mobile: "Phone and tablet", gamepad: "Gamepad" };
 
+/* painted title lettering (Google Flow, keyed out); the typeset title stays as the fallback and for screen readers */
+function logoHtml(g, eager) {
+  if (!g.logoImg) return g.logo;
+  const [src, w, h] = g.logoImg;
+  return `<img class="logo-img" src="${src}" width="${w}" height="${h}" alt="${esc(g.title)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" onerror="this.parentNode.classList.add('no-img');this.remove()"><span class="logo-txt">${g.logo}</span>`;
+}
 function pic(src, alt, { eager = false } = {}) {
   return `<div class="ph"><img src="${esc(src)}" alt="${esc(alt)}" width="1024" height="572" decoding="async" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'}></div>`;
 }
@@ -671,7 +688,7 @@ const Hero = (() => {
     <article class="slide ${g.theme}" id="slide-${g.id}" role="group" aria-roledescription="slide" aria-label="${n + 1} of ${GAMES.length}: ${esc(g.title)}" style="${fp(g)}">
       <div class="bgimg">${pic(g.cover, g.coverAlt, { eager: n === 0 })}${g.trailers && g.trailers.length ? Media.vid(g.trailers[0][0]) : ""}</div>
       <div class="copy">
-        <h2 class="logo ${g.logoClass}">${g.logo}</h2>
+        <h2 class="logo ${g.logoClass}">${logoHtml(g, true)}</h2>
         <p class="pitch">${esc(g.pitch)}</p>
         <div class="actions">
           <button class="btn btn-play" type="button" data-play="${g.id}" data-nav data-row="0">${ICON.play}Play</button>
@@ -765,7 +782,7 @@ const MOMENTS = GAMES.flatMap(g => (g.shots || []).map(([src, cap]) => ({ g, src
     <li class="tile ${g.theme}" style="${fp(g)}">
       <a class="tile-link" href="#${g.id}" data-play="${g.id}" data-nav data-row="1" aria-label="Play ${esc(g.title)}, ${esc(g.genre)}">
         ${pic(g.cover, "")}${g.trailers && g.trailers.length ? Media.vid(g.trailers[0][0]) : ""}
-        <p class="logo ${g.logoClass}" aria-hidden="true">${g.logo}</p>
+        <p class="logo ${g.logoClass}" aria-hidden="true">${logoHtml(g)}</p>
       </a>
       <div class="tile-more">
         <p class="tile-genre">${esc(g.genre)}</p>
@@ -928,7 +945,7 @@ function renderDetail(g) {
     <div class="d-hero">
       ${pic(g.cover, g.coverAlt, { eager: true })}${trailers.length ? Media.vid(trailers[0][0]) + Media.muteBtn() : ""}
       <div class="d-head">
-        <h2 class="logo ${g.logoClass}" id="dTitle">${g.logo}</h2>
+        <h2 class="logo ${g.logoClass}" id="dTitle">${logoHtml(g, true)}</h2>
         <p class="d-genre">${esc(g.genre)}</p>
       </div>
     </div>
